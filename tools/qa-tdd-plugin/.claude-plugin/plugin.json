@@ -1,0 +1,18 @@
+{
+  "name": "qa-tdd",
+  "displayName": "QA & TDD Suite",
+  "version": "0.2.0",
+  "description": "Test-driven development discipline, structured QA, security review, and Excel (.xlsx) test reports for the car-rental platform.",
+  "author": {
+    "name": "Car Rental Platform Team"
+  },
+  "keywords": [
+    "qa",
+    "tdd",
+    "testing",
+    "security",
+    "xlsx",
+    "test-cases"
+  ],
+  "license": "MIT"
+}

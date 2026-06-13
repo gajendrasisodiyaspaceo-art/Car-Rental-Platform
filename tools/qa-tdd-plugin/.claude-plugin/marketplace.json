@@ -1,0 +1,16 @@
+{
+  "name": "qa-tdd-local",
+  "description": "Local marketplace for the QA & TDD plugin.",
+  "owner": {
+    "name": "Car Rental Platform Team"
+  },
+  "plugins": [
+    {
+      "name": "qa-tdd",
+      "source": "./",
+      "description": "Test-driven development discipline, structured QA, security review, and Excel (.xlsx) test reports.",
+      "version": "0.2.0",
+      "keywords": ["qa", "tdd", "testing", "security", "xlsx"]
+    }
+  ]
+}

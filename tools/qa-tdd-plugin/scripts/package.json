@@ -1,0 +1,12 @@
+{
+  "name": "qa-tdd-report-generator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bundled .xlsx report generator for the qa-tdd plugin (kept separate from the apps).",
+  "bin": {
+    "qa-tdd-report": "generate-xlsx.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}

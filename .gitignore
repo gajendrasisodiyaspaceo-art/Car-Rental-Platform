@@ -1,0 +1,32 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+
+# builds
+dist/
+build/
+web-build/
+
+# expo / react native
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# misc
+coverage/
+.idea/
+.vscode/
+*.tsbuildinfo
+
+# claude code — personal/local only (shared config is committed)
+CLAUDE.local.md
+**/.claude/settings.local.json
+
+# qa-tdd plugin output
+qa-reports/
