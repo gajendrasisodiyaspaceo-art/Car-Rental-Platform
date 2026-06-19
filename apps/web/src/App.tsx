@@ -15,6 +15,9 @@ import BranchesPage from './pages/BranchesPage';
 import DiscountsPage from './pages/DiscountsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import CustomersPage from './pages/CustomersPage';
+import AdminPage from './pages/AdminPage';
+import StaffPage from './pages/StaffPage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -45,6 +48,30 @@ export default function App() {
         <Route path="/customers" element={<CustomersPage />} />
         <Route path="/discounts" element={<DiscountsPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute allowedRoles={['provider', 'staff']}>
+              <StaffPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={['provider', 'staff']}>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

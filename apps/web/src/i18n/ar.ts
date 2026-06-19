@@ -1,0 +1,83 @@
+import type { TKey } from './en';
+
+const ar: Record<TKey, string> = {
+  // nav
+  nav_dashboard: 'لوحة التحكم',
+  nav_fleet: 'الأسطول',
+  nav_categories: 'الفئات',
+  nav_branches: 'الفروع',
+  nav_bookings: 'الحجوزات',
+  nav_customers: 'العملاء',
+  nav_discounts: 'الخصومات',
+  nav_notifications: 'الإشعارات',
+  nav_staff: 'الموظفون',
+  nav_settings: 'الإعدادات',
+  nav_admin: 'لوحة الإدارة',
+  nav_logout: 'تسجيل الخروج',
+
+  // admin page
+  admin_title: 'لوحة الإدارة',
+  admin_stats_providers: 'مزودو الخدمة',
+  admin_stats_customers: 'العملاء',
+  admin_stats_staff: 'الموظفون',
+  admin_stats_bookings: 'الحجوزات',
+  admin_stats_revenue: 'إيرادات المنصة',
+  admin_users_title: 'المستخدمون',
+  admin_filter_all_roles: 'جميع الأدوار',
+  admin_filter_all_statuses: 'جميع الحالات',
+  admin_col_name: 'الاسم',
+  admin_col_email: 'البريد الإلكتروني',
+  admin_col_role: 'الدور',
+  admin_col_status: 'الحالة',
+  admin_col_verified: 'موثق',
+  admin_col_approved: 'معتمد',
+  admin_col_actions: 'إجراءات',
+  admin_action_suspend: 'تعليق',
+  admin_action_activate: 'تفعيل',
+  admin_action_approve: 'اعتماد',
+
+  // staff page
+  staff_title: 'الموظفون',
+  staff_add: '+ إضافة موظف',
+  staff_col_name: 'الاسم',
+  staff_col_email: 'البريد الإلكتروني',
+  staff_col_phone: 'الهاتف',
+  staff_col_status: 'الحالة',
+  staff_col_actions: 'إجراءات',
+  staff_action_edit: 'تعديل',
+  staff_action_delete: 'حذف',
+  staff_form_name: 'الاسم',
+  staff_form_email: 'البريد الإلكتروني',
+  staff_form_password: 'كلمة المرور',
+  staff_form_password_hint: '٨ أحرف على الأقل، وتتضمن حرفًا ورقمًا واحدًا على الأقل.',
+  staff_form_phone: 'الهاتف (اختياري)',
+  staff_form_status: 'الحالة',
+  staff_form_save: 'حفظ',
+  staff_form_cancel: 'إلغاء',
+  staff_form_add_title: 'إضافة موظف',
+  staff_form_edit_title: 'تعديل بيانات الموظف',
+
+  // settings page
+  settings_title: 'إعدادات العلامة التجارية',
+  settings_app_name: 'اسم التطبيق',
+  settings_logo_url: 'رابط الشعار',
+  settings_primary_color: 'اللون الأساسي',
+  settings_secondary_color: 'اللون الثانوي',
+  settings_currency: 'العملة',
+  settings_supported_langs: 'اللغات المدعومة (مفصولة بفاصلة)',
+  settings_default_lang: 'اللغة الافتراضية',
+  settings_support_email: 'بريد الدعم',
+  settings_support_phone: 'هاتف الدعم',
+  settings_cancellation_policy: 'سياسة الإلغاء',
+  settings_terms: 'الشروط والأحكام',
+  settings_save: 'حفظ الإعدادات',
+  settings_saved: 'تم حفظ الإعدادات.',
+
+  // common
+  loading: 'جارٍ التحميل…',
+  no_data: 'لا توجد بيانات.',
+  yes: 'نعم',
+  no: 'لا',
+};
+
+export default ar;

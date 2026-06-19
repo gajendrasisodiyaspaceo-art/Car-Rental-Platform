@@ -1,10 +1,38 @@
 export type Role = 'customer' | 'provider' | 'staff' | 'admin';
+export type UserStatus = 'active' | 'suspended';
 
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
   role: Role;
+  status?: UserStatus;
+  approved?: boolean;
+  isVerified?: boolean;
+}
+
+export interface AdminStats {
+  providers: number;
+  customers: number;
+  staff: number;
+  bookings: number;
+  platformRevenue: number;
+}
+
+export interface TenantSettings {
+  providerId: string;
+  appName: string;
+  logoUrl?: string;
+  primaryColor: string;
+  secondaryColor?: string;
+  currency: string;
+  supportedLanguages: string[];
+  defaultLanguage: string;
+  supportEmail?: string;
+  supportPhone?: string;
+  cancellationPolicy?: string;
+  termsAndConditions?: string;
 }
 
 export interface VehicleRating {

@@ -55,8 +55,19 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message ?? 'Login failed';
       })
+      .addCase(fetchMe.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(fetchMe.fulfilled, (state, action: PayloadAction<User>) => {
+        state.status = 'idle';
         state.user = action.payload;
+      })
+      .addCase(fetchMe.rejected, (state) => {
+        // Stale/invalid token — clear it so protected routes redirect to /login.
+        setToken(null);
+        state.status = 'idle';
+        state.token = null;
+        state.user = null;
       });
   },
 });
