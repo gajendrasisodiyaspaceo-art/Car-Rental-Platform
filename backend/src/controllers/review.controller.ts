@@ -5,6 +5,7 @@ import { Booking } from '../models/Booking';
 import { Review } from '../models/Review';
 import { Vehicle } from '../models/Vehicle';
 import { ApiError } from '../utils/ApiError';
+import { providerScope } from '../utils/scope';
 
 export const reviewSchema = z.object({
   body: z
@@ -47,6 +48,20 @@ export async function listVehicleReviews(req: Request, res: Response): Promise<v
     .populate('customerId', 'name')
     .sort('-createdAt');
   res.json({ success: true, data: items });
+}
+
+/** Moderation: admin (any) or the owning provider can remove a review. */
+export async function deleteReview(req: Request, res: Response): Promise<void> {
+  const review = await Review.findById(req.params.id);
+  if (!review) throw ApiError.notFound('Review not found');
+
+  const user = req.user!;
+  const isOwningProvider = user.role !== 'admin' && String(review.providerId) === providerScope(user);
+  if (user.role !== 'admin' && !isOwningProvider) throw ApiError.forbidden();
+
+  await review.deleteOne();
+  await recomputeVehicleRating(String(review.vehicleId));
+  res.json({ success: true, message: 'Review removed' });
 }
 
 async function recomputeVehicleRating(vehicleId: string): Promise<void> {

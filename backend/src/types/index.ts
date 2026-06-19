@@ -39,3 +39,6 @@ export type DiscountType = (typeof DISCOUNT_TYPES)[number];
 
 export const NOTIFICATION_TYPES = ['booking', 'payment', 'otp', 'promo', 'system'] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+export const USER_STATUSES = ['active', 'suspended'] as const;
+export type UserStatus = (typeof USER_STATUSES)[number];

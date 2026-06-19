@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { ROLES, Role } from '../types';
+import { ROLES, Role, USER_STATUSES, UserStatus } from '../types';
 
 interface Address {
   label?: string;
@@ -19,6 +19,10 @@ export interface IUser extends Document {
   /** Service provider this user belongs to (staff) or owns (provider). */
   providerId?: Types.ObjectId;
   isVerified: boolean;
+  /** Account status — admin can suspend; suspended users cannot log in. */
+  status: UserStatus;
+  /** Provider onboarding approval (admin-gated). Non-providers default true. */
+  approved: boolean;
   drivingLicense?: { number: string; expiry?: Date };
   addresses: Address[];
   loyaltyPoints: number;
@@ -45,6 +49,8 @@ const userSchema = new Schema<IUser>(
     role: { type: String, enum: ROLES, default: 'customer', index: true },
     providerId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     isVerified: { type: Boolean, default: false },
+    status: { type: String, enum: USER_STATUSES, default: 'active', index: true },
+    approved: { type: Boolean, default: true },
     drivingLicense: { number: String, expiry: Date },
     addresses: { type: [addressSchema], default: [] },
     loyaltyPoints: { type: Number, default: 0 },

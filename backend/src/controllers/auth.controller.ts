@@ -75,6 +75,9 @@ export async function login(req: Request, res: Response): Promise<void> {
   if (!user || !(await user.comparePassword(password))) {
     throw ApiError.unauthorized('Invalid credentials');
   }
+  if (user.status === 'suspended') {
+    throw ApiError.forbidden('Account suspended — contact support');
+  }
   res.json({
     success: true,
     data: {
