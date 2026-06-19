@@ -14,6 +14,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import BranchesPage from './pages/BranchesPage';
 import DiscountsPage from './pages/DiscountsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import CustomersPage from './pages/CustomersPage';
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/bookings/:id" element={<BookingDetailPage />} />
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/branches" element={<BranchesPage />} />
+        <Route path="/customers" element={<CustomersPage />} />
         <Route path="/discounts" element={<DiscountsPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
       </Route>

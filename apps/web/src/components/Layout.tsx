@@ -48,6 +48,7 @@ export default function Layout() {
           <NavLink to="/categories">Categories</NavLink>
           <NavLink to="/branches">Branches</NavLink>
           <NavLink to="/bookings">Bookings</NavLink>
+          <NavLink to="/customers">Customers</NavLink>
           <NavLink to="/discounts">Discounts</NavLink>
           <NavLink to="/notifications" className="notif-nav-link">
             Notifications

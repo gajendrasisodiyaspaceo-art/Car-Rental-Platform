@@ -149,6 +149,39 @@ export interface Discount {
 
 export type NotificationType = 'booking' | 'payment' | 'otp' | 'promo' | 'system';
 
+export interface ReportSummary {
+  fleetSize: number;
+  available: number;
+  rented: number;
+  totalBookings: number;
+  activeBookings: number;
+  totalRevenue: number;
+  utilizationRate: number;
+}
+
+export interface RevenuePoint {
+  period: string;
+  revenue: number;
+  bookings: number;
+}
+
+export interface PopularVehicle {
+  vehicleId: string;
+  name: string;
+  bookings: number;
+  revenue: number;
+  rating: { average: number; count: number };
+}
+
+export interface ReportCustomer {
+  customerId: string;
+  name: string;
+  email: string;
+  bookings: number;
+  totalSpent: number;
+  lastBooking: string | null;
+}
+
 export interface Notification {
   _id: string;
   type: NotificationType;
