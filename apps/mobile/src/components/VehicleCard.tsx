@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import type { Vehicle } from '../types';
 
@@ -6,12 +7,19 @@ interface Props {
   onPress: () => void;
 }
 
+// Reliable fallback so a missing/broken image still renders a real photo.
+const fallbackFor = (v: Vehicle) => `https://picsum.photos/seed/${encodeURIComponent(v._id)}/600/400`;
+
 export default function VehicleCard({ vehicle, onPress }: Props) {
+  const [uri, setUri] = useState(vehicle.images[0] ?? fallbackFor(vehicle));
+
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <Image
-        source={{ uri: vehicle.images[0] ?? 'https://placehold.co/600x400?text=Car' }}
+        source={{ uri }}
         style={styles.image}
+        resizeMode="cover"
+        onError={() => setUri(fallbackFor(vehicle))}
       />
       <View style={styles.body}>
         <Text style={styles.name}>{vehicle.name}</Text>

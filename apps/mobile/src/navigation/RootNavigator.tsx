@@ -40,26 +40,28 @@ function HeaderButton({
 
 function BellButton({ onPress, unread }: { onPress: () => void; unread: number }) {
   return (
-    <Pressable onPress={onPress} hitSlop={8} style={{ marginRight: 4 }}>
+    <Pressable onPress={onPress} hitSlop={10} style={{ marginRight: 2, padding: 2 }}>
       <View>
-        <Text style={{ fontSize: 20 }}>🔔</Text>
+        <Text style={{ fontSize: 22 }}>🔔</Text>
         {unread > 0 && (
           <View
             style={{
               position: 'absolute',
-              top: -4,
-              right: -6,
+              top: -5,
+              right: -7,
               backgroundColor: '#dc2626',
-              borderRadius: 999,
-              minWidth: 16,
-              height: 16,
+              borderRadius: 9,
+              minWidth: 18,
+              height: 18,
               alignItems: 'center',
               justifyContent: 'center',
-              paddingHorizontal: 3,
+              paddingHorizontal: 4,
+              borderWidth: 1.5,
+              borderColor: '#fff',
             }}
           >
-            <Text style={{ color: '#fff', fontSize: 9, fontWeight: '800' }}>
-              {unread > 99 ? '99+' : unread}
+            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
+              {unread > 9 ? '9+' : unread}
             </Text>
           </View>
         )}

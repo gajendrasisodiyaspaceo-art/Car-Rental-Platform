@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Image, ScrollView, Pressable, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -6,12 +7,16 @@ type Props = NativeStackScreenProps<RootStackParamList, 'VehicleDetail'>;
 
 export default function VehicleDetailScreen({ route, navigation }: Props) {
   const { vehicle } = route.params;
+  const fallback = `https://picsum.photos/seed/${encodeURIComponent(vehicle._id)}/800/500`;
+  const [imgUri, setImgUri] = useState(vehicle.images[0] ?? fallback);
 
   return (
     <ScrollView style={styles.container}>
       <Image
-        source={{ uri: vehicle.images[0] ?? 'https://placehold.co/800x500?text=Car' }}
+        source={{ uri: imgUri }}
         style={styles.image}
+        resizeMode="cover"
+        onError={() => setImgUri(fallback)}
       />
       <View style={styles.body}>
         <Text style={styles.name}>{vehicle.name}</Text>
