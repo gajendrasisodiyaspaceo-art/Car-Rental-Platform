@@ -3,12 +3,32 @@ import { z } from 'zod';
 import { Booking } from '../models/Booking';
 import { Vehicle } from '../models/Vehicle';
 import { Payment } from '../models/Payment';
+import { Discount } from '../models/Discount';
+import { User } from '../models/User';
 import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
 import { issueOtp, verifyOtp } from '../services/otp.service';
-import { computePrice, rentalDays } from '../utils/pricing';
+import { notify } from '../services/notification.service';
+import { computePrice, rentalDays, DiscountSpec } from '../utils/pricing';
 import { hasBookingConflict } from '../utils/availability';
 import { BOOKING_STATUSES, RENTAL_PLANS, BookingStatus } from '../types';
+
+// 1 loyalty point per 10 currency units of completed booking value.
+const LOYALTY_PER_UNIT = 1 / 10;
+
+/** Resolves a usable discount for a provider+code, or null if invalid/expired/exhausted. */
+async function resolveDiscount(providerId: unknown, code?: string) {
+  if (!code) return null;
+  const discount = await Discount.findOne({
+    providerId,
+    code: code.toUpperCase(),
+    isActive: true,
+  });
+  if (!discount) return null;
+  if (discount.expiresAt && discount.expiresAt <= new Date()) return null;
+  if (discount.maxRedemptions && discount.timesRedeemed >= discount.maxRedemptions) return null;
+  return discount;
+}
 
 export const createBookingSchema = z.object({
   body: z
@@ -54,7 +74,19 @@ export async function createBooking(req: Request, res: Response): Promise<void> 
     throw ApiError.badRequest('Vehicle is already booked for the selected dates');
   }
 
-  const pricing = computePrice({ plan, start: startDate, end: endDate, pricing: vehicle.pricing, extras, discountCode });
+  const discountDoc = await resolveDiscount(vehicle.providerId, discountCode);
+  const discountSpec: DiscountSpec | undefined = discountDoc
+    ? { type: discountDoc.type, value: discountDoc.value }
+    : undefined;
+
+  const pricing = computePrice({
+    plan,
+    start: startDate,
+    end: endDate,
+    pricing: vehicle.pricing,
+    extras,
+    discount: discountSpec,
+  });
 
   const booking = await Booking.create({
     customerId,
@@ -66,8 +98,20 @@ export async function createBooking(req: Request, res: Response): Promise<void> 
     endDate,
     plan,
     extras,
-    discountCode,
+    discountCode: discountDoc ? discountDoc.code : undefined,
     pricing: { ...pricing, currency: vehicle.currency },
+  });
+
+  if (discountDoc) {
+    discountDoc.timesRedeemed += 1;
+    await discountDoc.save();
+  }
+
+  await notify(vehicle.providerId, {
+    type: 'booking',
+    title: 'New booking request',
+    body: `${vehicle.name} · ${pricing.total} ${vehicle.currency}`,
+    bookingId: booking.id,
   });
 
   res.status(201).json({ success: true, data: booking });
@@ -101,6 +145,14 @@ export async function updateBookingStatus(req: Request, res: Response): Promise<
     { new: true },
   );
   if (!booking) throw ApiError.notFound('Booking not found');
+
+  await notify(booking.customerId, {
+    type: 'booking',
+    title: `Booking ${booking.status}`,
+    body: `Your booking is now ${booking.status}.`,
+    bookingId: booking.id,
+  });
+
   res.json({ success: true, data: booking });
 }
 
@@ -133,6 +185,12 @@ export async function generateAccessOtp(req: Request, res: Response): Promise<vo
     purpose: 'vehicle_access',
     bookingId: booking.id,
     userId: booking.customerId,
+  });
+  await notify(booking.customerId, {
+    type: 'otp',
+    title: 'Vehicle ready for pickup',
+    body: 'Your pickup code is ready — collect it from the provider.',
+    bookingId: booking.id,
   });
   res.json({ success: true, data: { code } });
 }
@@ -195,6 +253,17 @@ export async function redeemReturnOtp(req: Request, res: Response): Promise<void
   booking.status = 'completed';
   booking.returnedAt = now;
   await booking.save();
+
+  const earned = Math.floor(booking.pricing.total * LOYALTY_PER_UNIT);
+  if (earned > 0) {
+    await User.findByIdAndUpdate(booking.customerId, { $inc: { loyaltyPoints: earned } });
+  }
+  await notify(booking.customerId, {
+    type: 'booking',
+    title: 'Booking completed',
+    body: earned > 0 ? `Thanks for returning! You earned ${earned} loyalty points.` : 'Thanks for returning!',
+    bookingId: booking.id,
+  });
 
   res.json({ success: true, message: 'Vehicle returned', data: booking });
 }

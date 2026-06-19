@@ -33,3 +33,9 @@ export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export const OTP_PURPOSES = ['verification', 'vehicle_access', 'vehicle_return'] as const;
 export type OtpPurpose = (typeof OTP_PURPOSES)[number];
+
+export const DISCOUNT_TYPES = ['percent', 'flat'] as const;
+export type DiscountType = (typeof DISCOUNT_TYPES)[number];
+
+export const NOTIFICATION_TYPES = ['booking', 'payment', 'otp', 'promo', 'system'] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

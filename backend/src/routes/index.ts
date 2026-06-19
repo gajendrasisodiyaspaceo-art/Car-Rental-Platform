@@ -5,6 +5,8 @@ import categoryRoutes from './category.routes';
 import branchRoutes from './branch.routes';
 import bookingRoutes from './booking.routes';
 import paymentRoutes from './payment.routes';
+import discountRoutes from './discount.routes';
+import notificationRoutes from './notification.routes';
 
 const router = Router();
 
@@ -15,5 +17,7 @@ router.use('/categories', categoryRoutes);
 router.use('/branches', branchRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/discounts', discountRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;

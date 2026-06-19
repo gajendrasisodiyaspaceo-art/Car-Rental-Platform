@@ -97,3 +97,35 @@ export async function me(req: Request, res: Response): Promise<void> {
   if (!user) throw ApiError.notFound('User not found');
   res.json({ success: true, data: user });
 }
+
+export const updateMeSchema = z.object({
+  body: z
+    .object({
+      name: z.string().min(2).optional(),
+      phone: z.string().max(30).optional(),
+      drivingLicense: z
+        .object({ number: z.string().min(1), expiry: z.coerce.date().optional() })
+        .strict()
+        .optional(),
+      addresses: z
+        .array(
+          z
+            .object({
+              label: z.string().optional(),
+              line1: z.string().min(1),
+              city: z.string().optional(),
+              country: z.string().optional(),
+              isDefault: z.boolean().optional(),
+            })
+            .strict(),
+        )
+        .optional(),
+    })
+    .strict(),
+});
+
+export async function updateMe(req: Request, res: Response): Promise<void> {
+  const user = await User.findByIdAndUpdate(req.user!.id, { $set: req.body }, { new: true });
+  if (!user) throw ApiError.notFound('User not found');
+  res.json({ success: true, data: user });
+}

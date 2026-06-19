@@ -1,4 +1,4 @@
-import { RentalPlan } from '../types';
+import { DiscountType, RentalPlan } from '../types';
 
 export const TAX_RATE = 0.05;
 
@@ -10,16 +10,16 @@ export const EXTRAS_CATALOG: Record<string, number> = {
   insurance: 15,
 };
 
-/** Promo codes → fractional discount applied to the base rental price. */
-export const DISCOUNTS: Record<string, number> = {
-  WELCOME10: 0.1,
-  SUMMER20: 0.2,
-};
-
 interface VehiclePricing {
   daily: number;
   weekly?: number;
   monthly?: number;
+}
+
+/** A resolved discount (from the Discount collection) to apply to the base price. */
+export interface DiscountSpec {
+  type: DiscountType;
+  value: number;
 }
 
 export interface PriceBreakdown {
@@ -56,7 +56,7 @@ export function computePrice(opts: {
   end: Date;
   pricing: VehiclePricing;
   extras?: string[];
-  discountCode?: string;
+  discount?: DiscountSpec;
 }): PriceBreakdown {
   const days = rentalDays(opts.start, opts.end);
   const base = round2(basePrice(opts.plan, days, opts.pricing));
@@ -67,8 +67,13 @@ export function computePrice(opts: {
   );
   const extras = round2(extrasPerDay * days);
 
-  const discountRate = opts.discountCode ? (DISCOUNTS[opts.discountCode.toUpperCase()] ?? 0) : 0;
-  const discount = round2(base * discountRate);
+  let discount = 0;
+  if (opts.discount) {
+    discount =
+      opts.discount.type === 'percent'
+        ? round2(base * (opts.discount.value / 100))
+        : round2(Math.min(opts.discount.value, base));
+  }
 
   const taxable = base + extras - discount;
   const tax = round2(taxable * TAX_RATE);

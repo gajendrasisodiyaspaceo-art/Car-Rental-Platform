@@ -3,6 +3,7 @@ import { User } from './models/User';
 import { VehicleCategory } from './models/VehicleCategory';
 import { Branch } from './models/Branch';
 import { Vehicle } from './models/Vehicle';
+import { Discount } from './models/Discount';
 
 /** Minimal demo data so the apps have something to render. Idempotent-ish: wipes demo docs first. */
 async function seed(): Promise<void> {
@@ -31,6 +32,12 @@ async function seed(): Promise<void> {
   await VehicleCategory.deleteMany({ providerId: provider.id });
   await Branch.deleteMany({ providerId: provider.id });
   await Vehicle.deleteMany({ providerId: provider.id });
+  await Discount.deleteMany({ providerId: provider.id });
+
+  await Discount.create([
+    { providerId: provider.id, code: 'WELCOME10', type: 'percent', value: 10 },
+    { providerId: provider.id, code: 'SUMMER20', type: 'percent', value: 20 },
+  ]);
 
   const [economy, suv] = await VehicleCategory.create([
     { providerId: provider.id, name: 'Economy' },

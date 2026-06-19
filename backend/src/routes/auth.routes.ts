@@ -8,9 +8,11 @@ import {
   login,
   confirmOtp,
   me,
+  updateMe,
   registerSchema,
   loginSchema,
   verifyOtpSchema,
+  updateMeSchema,
 } from '../controllers/auth.controller';
 
 const router = Router();
@@ -22,5 +24,6 @@ router.post('/register', authLimiter, validate(registerSchema), asyncHandler(reg
 router.post('/login', authLimiter, validate(loginSchema), asyncHandler(login));
 router.post('/verify-otp', authLimiter, validate(verifyOtpSchema), asyncHandler(confirmOtp));
 router.get('/me', authenticate, asyncHandler(me));
+router.put('/me', authenticate, validate(updateMeSchema), asyncHandler(updateMe));
 
 export default router;
