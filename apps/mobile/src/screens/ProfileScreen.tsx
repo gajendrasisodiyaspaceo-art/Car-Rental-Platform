@@ -15,6 +15,8 @@ import { useAppDispatch, useAppSelector } from '../store';
 import { logout } from '../store/authSlice';
 import type { RootStackParamList } from '../navigation/types';
 import type { User, Address, DrivingLicense, Discount } from '../types';
+import { useT } from '../i18n/useT';
+import { useTheme } from '../theme/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
@@ -37,6 +39,8 @@ const emptyAddress = (): Address => ({
 export default function ProfileScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const authUser = useAppSelector((s) => s.auth.user);
+  const { t, lang, setLang } = useT();
+  const { primaryColor, appName } = useTheme();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -150,24 +154,48 @@ export default function ProfileScreen({ navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#4f46e5" />
+        <ActivityIndicator size="large" color={primaryColor} />
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* App name header (themed) */}
+      <Text style={[styles.appNameHeader, { color: primaryColor }]}>{appName}</Text>
+
+      {/* Language switcher */}
+      <View style={styles.langRow}>
+        <Text style={styles.langLabel}>{t('language')}:</Text>
+        <Pressable
+          style={[styles.langBtn, lang === 'en' && { backgroundColor: primaryColor }]}
+          onPress={() => void setLang('en')}
+        >
+          <Text style={[styles.langBtnText, lang === 'en' && styles.langBtnTextActive]}>
+            {t('langEn')}
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[styles.langBtn, lang === 'ar' && { backgroundColor: primaryColor }]}
+          onPress={() => void setLang('ar')}
+        >
+          <Text style={[styles.langBtnText, lang === 'ar' && styles.langBtnTextActive]}>
+            {t('langAr')}
+          </Text>
+        </Pressable>
+      </View>
+
       {/* Loyalty points banner */}
-      <View style={styles.loyaltyCard}>
-        <Text style={styles.loyaltyLabel}>Loyalty points</Text>
+      <View style={[styles.loyaltyCard, { backgroundColor: primaryColor }]}>
+        <Text style={styles.loyaltyLabel}>{t('loyaltyPoints')}</Text>
         <Text style={styles.loyaltyPoints}>{user?.loyaltyPoints ?? 0}</Text>
-        <Text style={styles.loyaltySub}>Earn points with every booking</Text>
+        <Text style={styles.loyaltySub}>{t('loyaltySub')}</Text>
       </View>
 
       {/* Active promos */}
       {discounts.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Active promo offers</Text>
+          <Text style={styles.sectionTitle}>{t('activePromos')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.promoScroll}>
             {discounts.map((d) => (
               <View key={d.code} style={styles.promoCard}>
@@ -188,12 +216,12 @@ export default function ProfileScreen({ navigation }: Props) {
 
       {/* Personal info */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Personal info</Text>
+        <Text style={styles.sectionTitle}>{t('personalInfo')}</Text>
         <View style={styles.card}>
-          <Text style={styles.fieldLabel}>Email</Text>
+          <Text style={styles.fieldLabel}>{t('email')}</Text>
           <Text style={styles.fieldReadOnly}>{user?.email}</Text>
 
-          <Text style={styles.fieldLabel}>Name</Text>
+          <Text style={styles.fieldLabel}>{t('name')}</Text>
           <TextInput
             style={styles.input}
             value={form.name}
@@ -202,7 +230,7 @@ export default function ProfileScreen({ navigation }: Props) {
             placeholderTextColor="#94a3b8"
           />
 
-          <Text style={styles.fieldLabel}>Phone</Text>
+          <Text style={styles.fieldLabel}>{t('phone')}</Text>
           <TextInput
             style={styles.input}
             value={form.phone}
@@ -216,9 +244,9 @@ export default function ProfileScreen({ navigation }: Props) {
 
       {/* Driving license */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Driving license</Text>
+        <Text style={styles.sectionTitle}>{t('drivingLicense')}</Text>
         <View style={styles.card}>
-          <Text style={styles.fieldLabel}>License number</Text>
+          <Text style={styles.fieldLabel}>{t('licenseNumber')}</Text>
           <TextInput
             style={styles.input}
             value={form.licenseNumber}
@@ -228,7 +256,7 @@ export default function ProfileScreen({ navigation }: Props) {
             autoCapitalize="characters"
           />
 
-          <Text style={styles.fieldLabel}>Expiry date</Text>
+          <Text style={styles.fieldLabel}>{t('licenseExpiry')}</Text>
           <TextInput
             style={styles.input}
             value={form.licenseExpiry}
@@ -242,29 +270,29 @@ export default function ProfileScreen({ navigation }: Props) {
       {/* Address book */}
       <View style={styles.section}>
         <View style={styles.sectionRow}>
-          <Text style={styles.sectionTitle}>Addresses</Text>
+          <Text style={styles.sectionTitle}>{t('addresses')}</Text>
           <Pressable style={styles.addBtn} onPress={addAddress}>
-            <Text style={styles.addBtnText}>+ Add</Text>
+            <Text style={styles.addBtnText}>{t('addAddress')}</Text>
           </Pressable>
         </View>
 
         {form.addresses.map((addr, idx) => (
           <View key={idx} style={styles.addressCard}>
             <View style={styles.addressHeader}>
-              <Text style={styles.addressIndex}>Address {idx + 1}</Text>
+              <Text style={styles.addressIndex}>{t('addressLabel')} {idx + 1}</Text>
               <View style={styles.addressActions}>
                 {!addr.isDefault && (
                   <Pressable onPress={() => setDefaultAddress(idx)} hitSlop={8}>
-                    <Text style={styles.setDefaultText}>Set default</Text>
+                    <Text style={[styles.setDefaultText, { color: primaryColor }]}>{t('setDefault')}</Text>
                   </Pressable>
                 )}
                 {addr.isDefault && (
                   <View style={styles.defaultBadge}>
-                    <Text style={styles.defaultBadgeText}>Default</Text>
+                    <Text style={styles.defaultBadgeText}>{t('default')}</Text>
                   </View>
                 )}
                 <Pressable onPress={() => removeAddress(idx)} hitSlop={8}>
-                  <Text style={styles.removeText}>Remove</Text>
+                  <Text style={styles.removeText}>{t('remove')}</Text>
                 </Pressable>
               </View>
             </View>
@@ -305,13 +333,13 @@ export default function ProfileScreen({ navigation }: Props) {
 
       {/* Account actions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{t('account')}</Text>
         <View style={styles.card}>
           <Pressable
             style={styles.actionRow}
             onPress={() => navigation.navigate('Bookings')}
           >
-            <Text style={styles.actionLabel}>My bookings</Text>
+            <Text style={styles.actionLabel}>{t('myBookings')}</Text>
             <Text style={styles.actionChevron}>›</Text>
           </Pressable>
           <View style={styles.divider} />
@@ -319,7 +347,7 @@ export default function ProfileScreen({ navigation }: Props) {
             style={styles.actionRow}
             onPress={() => navigation.navigate('VerifyOtp')}
           >
-            <Text style={styles.actionLabel}>Verify account</Text>
+            <Text style={styles.actionLabel}>{t('verifyAccount')}</Text>
             <Text style={styles.actionChevron}>›</Text>
           </Pressable>
           <View style={styles.divider} />
@@ -327,14 +355,18 @@ export default function ProfileScreen({ navigation }: Props) {
             style={styles.actionRow}
             onPress={() => dispatch(logout())}
           >
-            <Text style={[styles.actionLabel, styles.logoutLabel]}>Log out</Text>
+            <Text style={[styles.actionLabel, styles.logoutLabel]}>{t('logout')}</Text>
           </Pressable>
         </View>
       </View>
 
       {/* Save button */}
-      <Pressable style={[styles.saveBtn, saving && styles.saveBtnDisabled]} onPress={handleSave} disabled={saving}>
-        <Text style={styles.saveBtnText}>{saving ? 'Saving…' : 'Save changes'}</Text>
+      <Pressable
+        style={[styles.saveBtn, { backgroundColor: primaryColor }, saving && styles.saveBtnDisabled]}
+        onPress={handleSave}
+        disabled={saving}
+      >
+        <Text style={styles.saveBtnText}>{saving ? t('saving') : t('save')}</Text>
       </Pressable>
     </ScrollView>
   );
@@ -345,8 +377,33 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 48 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
+  appNameHeader: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+
+  langRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  langLabel: { fontSize: 13, color: '#64748b', fontWeight: '600' },
+  langBtn: {
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    backgroundColor: '#e2e8f0',
+  },
+  langBtnText: { fontSize: 13, fontWeight: '600', color: '#475569' },
+  langBtnTextActive: { color: '#fff' },
+
   loyaltyCard: {
-    backgroundColor: '#4f46e5',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -450,7 +507,6 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: '#f1f5f9' },
 
   saveBtn: {
-    backgroundColor: '#4f46e5',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',

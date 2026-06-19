@@ -18,13 +18,22 @@ import VerifyOtpScreen from '../screens/VerifyOtpScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import type { RootStackParamList } from './types';
+import { useTheme } from '../theme/ThemeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function HeaderButton({ label, onPress }: { label: string; onPress: () => void }) {
+function HeaderButton({
+  label,
+  onPress,
+  color = '#4f46e5',
+}: {
+  label: string;
+  onPress: () => void;
+  color?: string;
+}) {
   return (
     <Pressable onPress={onPress} hitSlop={8}>
-      <Text style={{ color: '#4f46e5', fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 }
@@ -62,6 +71,7 @@ function BellButton({ onPress, unread }: { onPress: () => void; unread: number }
 export default function RootNavigator() {
   const dispatch = useAppDispatch();
   const token = useAppSelector((s) => s.auth.token);
+  const { primaryColor, appName } = useTheme();
   const [unreadCount, setUnreadCount] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -102,7 +112,7 @@ export default function RootNavigator() {
               name="Home"
               component={HomeScreen}
               options={({ navigation }) => ({
-                title: 'Find a car',
+                title: appName ?? 'Find a car',
                 headerRight: () => (
                   <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
                     <BellButton
@@ -112,7 +122,11 @@ export default function RootNavigator() {
                         navigation.navigate('Notifications');
                       }}
                     />
-                    <HeaderButton label="Profile" onPress={() => navigation.navigate('Profile')} />
+                    <HeaderButton
+                      label="Profile"
+                      onPress={() => navigation.navigate('Profile')}
+                      color={primaryColor}
+                    />
                   </View>
                 ),
               })}
