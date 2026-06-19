@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import VehiclesPage from './pages/VehiclesPage';
 import VehicleFormPage from './pages/VehicleFormPage';
+import VehicleDetailPage from './pages/VehicleDetailPage';
 import BookingsPage from './pages/BookingsPage';
 import BookingDetailPage from './pages/BookingDetailPage';
 import CategoriesPage from './pages/CategoriesPage';
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/vehicles" element={<VehiclesPage />} />
         <Route path="/vehicles/new" element={<VehicleFormPage />} />
         <Route path="/vehicles/:id/edit" element={<VehicleFormPage />} />
+        <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/bookings/:id" element={<BookingDetailPage />} />
         <Route path="/categories" element={<CategoriesPage />} />
