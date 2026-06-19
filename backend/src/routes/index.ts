@@ -7,6 +7,7 @@ import bookingRoutes from './booking.routes';
 import paymentRoutes from './payment.routes';
 import discountRoutes from './discount.routes';
 import notificationRoutes from './notification.routes';
+import reportRoutes from './report.routes';
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use('/bookings', bookingRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/discounts', discountRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/reports', reportRoutes);
 
 export default router;
