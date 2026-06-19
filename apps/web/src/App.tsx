@@ -12,6 +12,8 @@ import BookingsPage from './pages/BookingsPage';
 import BookingDetailPage from './pages/BookingDetailPage';
 import CategoriesPage from './pages/CategoriesPage';
 import BranchesPage from './pages/BranchesPage';
+import DiscountsPage from './pages/DiscountsPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -39,6 +41,8 @@ export default function App() {
         <Route path="/bookings/:id" element={<BookingDetailPage />} />
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/branches" element={<BranchesPage />} />
+        <Route path="/discounts" element={<DiscountsPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

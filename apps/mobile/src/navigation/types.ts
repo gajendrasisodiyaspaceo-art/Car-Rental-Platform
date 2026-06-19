@@ -11,4 +11,6 @@ export type RootStackParamList = {
   BookingDetail: { bookingId: string };
   Review: { bookingId: string };
   VerifyOtp: undefined;
+  Profile: undefined;
+  Notifications: undefined;
 };

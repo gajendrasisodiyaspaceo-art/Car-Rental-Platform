@@ -133,3 +133,28 @@ export interface Payment {
   method: string;
   status: PaymentStatus;
 }
+
+export type DiscountType = 'percent' | 'flat';
+
+export interface Discount {
+  _id: string;
+  code: string;
+  type: DiscountType;
+  value: number;
+  isActive: boolean;
+  expiresAt?: string;
+  maxRedemptions?: number;
+  timesRedeemed: number;
+}
+
+export type NotificationType = 'booking' | 'payment' | 'otp' | 'promo' | 'system';
+
+export interface Notification {
+  _id: string;
+  type: NotificationType;
+  title: string;
+  body?: string;
+  bookingId?: string;
+  read: boolean;
+  createdAt: string;
+}

@@ -4,6 +4,7 @@ import vehiclesReducer from '../features/vehicles/vehiclesSlice';
 import bookingsReducer from '../features/bookings/bookingsSlice';
 import categoriesReducer from '../features/categories/categoriesSlice';
 import branchesReducer from '../features/branches/branchesSlice';
+import discountsReducer from '../features/discounts/discountsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     bookings: bookingsReducer,
     categories: categoriesReducer,
     branches: branchesReducer,
+    discounts: discountsReducer,
   },
 });
 

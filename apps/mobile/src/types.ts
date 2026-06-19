@@ -1,10 +1,45 @@
 export type Role = 'customer' | 'provider' | 'staff' | 'admin';
 
+export interface DrivingLicense {
+  number: string;
+  expiry?: string;
+}
+
+export interface Address {
+  label?: string;
+  line1: string;
+  city?: string;
+  country?: string;
+  isDefault?: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: Role;
+  drivingLicense?: DrivingLicense;
+  addresses?: Address[];
+  loyaltyPoints?: number;
+  isVerified?: boolean;
+}
+
+export interface Notification {
+  _id: string;
+  type: 'booking' | 'payment' | 'otp' | 'promo' | 'system';
+  title: string;
+  body?: string;
+  bookingId?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface Discount {
+  code: string;
+  type: 'percent' | 'flat';
+  value: number;
+  expiresAt?: string;
 }
 
 export interface VehicleRating {
