@@ -1,26 +1,54 @@
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
-import type { Booking } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { fetchBookings } from '../features/bookings/bookingsSlice';
+import type { BookingStatus } from '../types';
+
+const ALL_STATUSES: BookingStatus[] = [
+  'pending',
+  'confirmed',
+  'preparing',
+  'ready',
+  'active',
+  'completed',
+  'cancelled',
+  'rejected',
+];
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const bookings = useAppSelector((s) => s.bookings.items);
+  const loading = useAppSelector((s) => s.bookings.status === 'loading');
+  const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
 
   useEffect(() => {
-    api
-      .get('/bookings')
-      .then(({ data }) => setBookings(data.data))
-      .finally(() => setLoading(false));
-  }, []);
+    dispatch(fetchBookings());
+  }, [dispatch]);
+
+  const filtered = statusFilter === 'all' ? bookings : bookings.filter((b) => b.status === statusFilter);
 
   return (
     <div>
-      <h2>Bookings</h2>
+      <div className="page-header">
+        <h2>Bookings</h2>
+        <select
+          className="status-filter"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as BookingStatus | 'all')}
+        >
+          <option value="all">All statuses</option>
+          {ALL_STATUSES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
       {loading && <p>Loading…</p>}
       <table className="data-table">
         <thead>
           <tr>
             <th>Booking</th>
+            <th>Vehicle</th>
             <th>Plan</th>
             <th>Dates</th>
             <th>Total</th>
@@ -28,25 +56,34 @@ export default function BookingsPage() {
           </tr>
         </thead>
         <tbody>
-          {bookings.map((b) => (
-            <tr key={b._id}>
-              <td>{b._id.slice(-6)}</td>
-              <td>{b.plan}</td>
-              <td>
-                {new Date(b.startDate).toLocaleDateString()} –{' '}
-                {new Date(b.endDate).toLocaleDateString()}
-              </td>
-              <td>
-                {b.pricing.currency} {b.pricing.total}
-              </td>
-              <td>
-                <span className={`badge badge-${b.status}`}>{b.status}</span>
-              </td>
-            </tr>
-          ))}
-          {!bookings.length && !loading && (
+          {filtered.map((b) => {
+            const vehicleName =
+              b.vehicleId && typeof b.vehicleId !== 'string' ? b.vehicleId.name : '—';
+            return (
+              <tr
+                key={b._id}
+                className="clickable-row"
+                onClick={() => navigate(`/bookings/${b._id}`)}
+              >
+                <td>#{b._id.slice(-8).toUpperCase()}</td>
+                <td>{vehicleName}</td>
+                <td>{b.plan}</td>
+                <td>
+                  {new Date(b.startDate).toLocaleDateString()} –{' '}
+                  {new Date(b.endDate).toLocaleDateString()}
+                </td>
+                <td>
+                  {b.pricing.currency} {b.pricing.total}
+                </td>
+                <td>
+                  <span className={`badge badge-${b.status}`}>{b.status}</span>
+                </td>
+              </tr>
+            );
+          })}
+          {!filtered.length && !loading && (
             <tr>
-              <td colSpan={5}>No bookings yet.</td>
+              <td colSpan={6}>No bookings found.</td>
             </tr>
           )}
         </tbody>

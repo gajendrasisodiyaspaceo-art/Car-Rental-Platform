@@ -7,12 +7,18 @@ import {
   listBookings,
   getBooking,
   updateBookingStatus,
+  cancelBooking,
   generateAccessOtp,
   redeemAccessOtp,
+  generateReturnOtp,
+  redeemReturnOtp,
   createBookingSchema,
   updateStatusSchema,
   accessOtpSchema,
+  cancelSchema,
 } from '../controllers/booking.controller';
+import { payBooking, paySchema } from '../controllers/payment.controller';
+import { createReview, reviewSchema } from '../controllers/review.controller';
 
 const router = Router();
 
@@ -29,17 +35,30 @@ router.patch(
   asyncHandler(updateBookingStatus),
 );
 
-// OTP-based keyless access
-router.post(
-  '/:id/access-otp',
-  authorize('provider', 'staff'),
-  asyncHandler(generateAccessOtp),
-);
+router.post('/:id/cancel', validate(cancelSchema), asyncHandler(cancelBooking));
+
+// Checkout (cash-on-delivery)
+router.post('/:id/pay', authorize('customer'), validate(paySchema), asyncHandler(payBooking));
+
+// OTP-based keyless pickup
+router.post('/:id/access-otp', authorize('provider', 'staff'), asyncHandler(generateAccessOtp));
 router.post(
   '/:id/redeem-otp',
   authorize('customer'),
   validate(accessOtpSchema),
   asyncHandler(redeemAccessOtp),
 );
+
+// OTP-based return hand-off
+router.post('/:id/return-otp', authorize('provider', 'staff'), asyncHandler(generateReturnOtp));
+router.post(
+  '/:id/redeem-return-otp',
+  authorize('customer'),
+  validate(accessOtpSchema),
+  asyncHandler(redeemReturnOtp),
+);
+
+// Post-rental review
+router.post('/:id/review', authorize('customer'), validate(reviewSchema), asyncHandler(createReview));
 
 export default router;

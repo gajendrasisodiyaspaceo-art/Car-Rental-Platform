@@ -1,15 +1,23 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { Booking } from '../types';
+import type { RootStackParamList } from '../navigation/types';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
 
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   confirmed: { bg: '#dcfce7', fg: '#166534' },
   active: { bg: '#dbeafe', fg: '#1e40af' },
   completed: { bg: '#e2e8f0', fg: '#475569' },
+  pending: { bg: '#fef9c3', fg: '#854d0e' },
+  preparing: { bg: '#dbeafe', fg: '#1e3a8a' },
+  ready: { bg: '#ede9fe', fg: '#5b21b6' },
+  cancelled: { bg: '#fee2e2', fg: '#991b1b' },
 };
 
-export default function BookingsScreen() {
+export default function BookingsScreen({ navigation }: Props) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +50,10 @@ export default function BookingsScreen() {
           typeof item.vehicleId === 'object' ? item.vehicleId?.name : 'Vehicle';
         const color = STATUS_COLORS[item.status];
         return (
-          <View style={styles.card}>
+          <Pressable
+            style={styles.card}
+            onPress={() => navigation.navigate('BookingDetail', { bookingId: item._id })}
+          >
             <View style={styles.row}>
               <Text style={styles.name}>{vehicleName}</Text>
               <Text
@@ -61,7 +72,7 @@ export default function BookingsScreen() {
             <Text style={styles.total}>
               {item.pricing.currency} {item.pricing.total}
             </Text>
-          </View>
+          </Pressable>
         );
       }}
     />

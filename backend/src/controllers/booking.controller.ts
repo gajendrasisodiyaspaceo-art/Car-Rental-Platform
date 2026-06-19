@@ -2,57 +2,47 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { Booking } from '../models/Booking';
 import { Vehicle } from '../models/Vehicle';
+import { Payment } from '../models/Payment';
 import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
 import { issueOtp, verifyOtp } from '../services/otp.service';
-import { BOOKING_STATUSES, RENTAL_PLANS, RentalPlan } from '../types';
-
-const TAX_RATE = 0.05;
+import { computePrice, rentalDays } from '../utils/pricing';
+import { hasBookingConflict } from '../utils/availability';
+import { BOOKING_STATUSES, RENTAL_PLANS, BookingStatus } from '../types';
 
 export const createBookingSchema = z.object({
-  body: z.object({
-    vehicleId: z.string(),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date(),
-    plan: z.enum(RENTAL_PLANS).optional(),
-    pickupBranchId: z.string().optional(),
-    dropoffBranchId: z.string().optional(),
-    extras: z.array(z.string()).optional(),
-    discountCode: z.string().optional(),
-  }),
+  body: z
+    .object({
+      vehicleId: z.string(),
+      startDate: z.coerce.date(),
+      endDate: z.coerce.date(),
+      plan: z.enum(RENTAL_PLANS).optional(),
+      pickupBranchId: z.string().optional(),
+      dropoffBranchId: z.string().optional(),
+      extras: z.array(z.string()).optional(),
+      discountCode: z.string().optional(),
+    })
+    .strict(),
 });
 
 export const updateStatusSchema = z.object({
-  body: z.object({ status: z.enum(BOOKING_STATUSES) }),
+  body: z.object({ status: z.enum(BOOKING_STATUSES) }).strict(),
 });
 
 export const accessOtpSchema = z.object({
-  body: z.object({ code: z.string().length(6) }),
+  body: z.object({ code: z.string().length(6) }).strict(),
 });
 
-function rentalDays(start: Date, end: Date): number {
-  const ms = end.getTime() - start.getTime();
-  return Math.max(1, Math.ceil(ms / 86_400_000));
-}
+export const cancelSchema = z.object({
+  body: z.object({ reason: z.string().max(280).optional() }).strict(),
+});
 
-function basePrice(
-  plan: RentalPlan,
-  days: number,
-  pricing: { daily: number; weekly?: number; monthly?: number },
-): number {
-  switch (plan) {
-    case 'monthly':
-      return (pricing.monthly ?? pricing.daily * 30) * Math.max(1, Math.ceil(days / 30));
-    case 'weekly':
-      return (pricing.weekly ?? pricing.daily * 7) * Math.max(1, Math.ceil(days / 7));
-    default:
-      return pricing.daily * days;
-  }
-}
+// Statuses from which a customer/provider may still cancel.
+const CANCELLABLE: BookingStatus[] = ['pending', 'confirmed', 'preparing', 'ready'];
 
 export async function createBooking(req: Request, res: Response): Promise<void> {
   const customerId = req.user!.id;
-  const { vehicleId, startDate, endDate, plan = 'daily', extras = [] } = req.body;
+  const { vehicleId, startDate, endDate, plan = 'daily', extras = [], discountCode } = req.body;
 
   if (endDate <= startDate) throw ApiError.badRequest('endDate must be after startDate');
 
@@ -60,10 +50,11 @@ export async function createBooking(req: Request, res: Response): Promise<void> 
   if (!vehicle) throw ApiError.notFound('Vehicle not found');
   if (vehicle.status !== 'available') throw ApiError.badRequest('Vehicle is not available');
 
-  const days = rentalDays(startDate, endDate);
-  const base = basePrice(plan, days, vehicle.pricing);
-  const tax = Math.round(base * TAX_RATE * 100) / 100;
-  const total = base + tax;
+  if (await hasBookingConflict(vehicleId, startDate, endDate)) {
+    throw ApiError.badRequest('Vehicle is already booked for the selected dates');
+  }
+
+  const pricing = computePrice({ plan, start: startDate, end: endDate, pricing: vehicle.pricing, extras, discountCode });
 
   const booking = await Booking.create({
     customerId,
@@ -75,8 +66,8 @@ export async function createBooking(req: Request, res: Response): Promise<void> 
     endDate,
     plan,
     extras,
-    discountCode: req.body.discountCode,
-    pricing: { base, extras: 0, tax, total, currency: vehicle.currency },
+    discountCode,
+    pricing: { ...pricing, currency: vehicle.currency },
   });
 
   res.status(201).json({ success: true, data: booking });
@@ -98,13 +89,7 @@ export async function getBooking(req: Request, res: Response): Promise<void> {
   const booking = await Booking.findById(req.params.id).populate('vehicleId');
   if (!booking) throw ApiError.notFound('Booking not found');
 
-  const user = req.user!;
-  const owns =
-    user.role === 'customer'
-      ? String(booking.customerId) === user.id
-      : String(booking.providerId) === providerScope(user);
-  if (!owns) throw ApiError.forbidden();
-
+  if (!ownsBooking(req, booking)) throw ApiError.forbidden();
   res.json({ success: true, data: booking });
 }
 
@@ -119,7 +104,26 @@ export async function updateBookingStatus(req: Request, res: Response): Promise<
   res.json({ success: true, data: booking });
 }
 
-/** Provider generates a one-time code for keyless lock-box access. */
+/** Customer or owning provider cancels; a paid (COD) charge is marked refunded. */
+export async function cancelBooking(req: Request, res: Response): Promise<void> {
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) throw ApiError.notFound('Booking not found');
+  if (!ownsBooking(req, booking)) throw ApiError.forbidden();
+
+  if (!CANCELLABLE.includes(booking.status)) {
+    throw ApiError.badRequest(`Cannot cancel a booking that is ${booking.status}`);
+  }
+
+  booking.status = 'cancelled';
+  if (req.body.reason) booking.notes = req.body.reason;
+  await booking.save();
+
+  await Payment.updateMany({ bookingId: booking.id, status: 'paid' }, { status: 'refunded' });
+
+  res.json({ success: true, message: 'Booking cancelled', data: booking });
+}
+
+/** Provider generates a one-time code for keyless lock-box access at pickup. */
 export async function generateAccessOtp(req: Request, res: Response): Promise<void> {
   const providerId = providerScope(req.user);
   const booking = await Booking.findOne({ _id: req.params.id, providerId });
@@ -133,7 +137,7 @@ export async function generateAccessOtp(req: Request, res: Response): Promise<vo
   res.json({ success: true, data: { code } });
 }
 
-/** Customer redeems the lock-box code at pickup. */
+/** Customer redeems the lock-box code at pickup; COD payment is collected here. */
 export async function redeemAccessOtp(req: Request, res: Response): Promise<void> {
   const booking = await Booking.findById(req.params.id);
   if (!booking) throw ApiError.notFound('Booking not found');
@@ -144,5 +148,60 @@ export async function redeemAccessOtp(req: Request, res: Response): Promise<void
 
   booking.status = 'active';
   await booking.save();
+
+  // Cash-on-delivery is handed over at pickup → mark the pending charge paid.
+  await Payment.updateMany(
+    { bookingId: booking.id, method: 'cash_on_delivery', status: 'pending' },
+    { status: 'paid' },
+  );
+
   res.json({ success: true, message: 'Vehicle unlocked', data: booking });
+}
+
+/** Provider generates the return hand-off code at the branch. */
+export async function generateReturnOtp(req: Request, res: Response): Promise<void> {
+  const providerId = providerScope(req.user);
+  const booking = await Booking.findOne({ _id: req.params.id, providerId });
+  if (!booking) throw ApiError.notFound('Booking not found');
+  if (booking.status !== 'active') throw ApiError.badRequest('Booking is not active');
+
+  const code = await issueOtp({
+    purpose: 'vehicle_return',
+    bookingId: booking.id,
+    userId: booking.customerId,
+  });
+  res.json({ success: true, data: { code } });
+}
+
+/** Customer redeems the return code; booking completes and any late fee is applied. */
+export async function redeemReturnOtp(req: Request, res: Response): Promise<void> {
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) throw ApiError.notFound('Booking not found');
+  if (String(booking.customerId) !== req.user!.id) throw ApiError.forbidden();
+  if (booking.status !== 'active') throw ApiError.badRequest('Booking is not active');
+
+  const ok = await verifyOtp(req.body.code, 'vehicle_return', { bookingId: booking.id });
+  if (!ok) throw ApiError.badRequest('Invalid or expired return code');
+
+  const now = new Date();
+  if (now > booking.endDate) {
+    const vehicle = await Vehicle.findById(booking.vehicleId).select('pricing');
+    const lateDays = rentalDays(booking.endDate, now);
+    const lateFee = Math.round((vehicle?.pricing.daily ?? 0) * lateDays * 100) / 100;
+    booking.pricing.lateFee = lateFee;
+    booking.pricing.total = Math.round((booking.pricing.total + lateFee) * 100) / 100;
+  }
+
+  booking.status = 'completed';
+  booking.returnedAt = now;
+  await booking.save();
+
+  res.json({ success: true, message: 'Vehicle returned', data: booking });
+}
+
+function ownsBooking(req: Request, booking: { customerId: unknown; providerId: unknown }): boolean {
+  const user = req.user!;
+  return user.role === 'customer'
+    ? String(booking.customerId) === user.id
+    : String(booking.providerId) === providerScope(user);
 }

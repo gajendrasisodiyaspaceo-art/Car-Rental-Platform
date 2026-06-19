@@ -7,7 +7,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import VehiclesPage from './pages/VehiclesPage';
+import VehicleFormPage from './pages/VehicleFormPage';
 import BookingsPage from './pages/BookingsPage';
+import BookingDetailPage from './pages/BookingDetailPage';
+import CategoriesPage from './pages/CategoriesPage';
+import BranchesPage from './pages/BranchesPage';
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -29,7 +33,12 @@ export default function App() {
       >
         <Route path="/" element={<DashboardPage />} />
         <Route path="/vehicles" element={<VehiclesPage />} />
+        <Route path="/vehicles/new" element={<VehicleFormPage />} />
+        <Route path="/vehicles/:id/edit" element={<VehicleFormPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
+        <Route path="/bookings/:id" element={<BookingDetailPage />} />
+        <Route path="/categories" element={<CategoriesPage />} />
+        <Route path="/branches" element={<BranchesPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

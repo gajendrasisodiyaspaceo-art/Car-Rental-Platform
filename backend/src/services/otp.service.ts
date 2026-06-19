@@ -1,10 +1,11 @@
+import { randomInt } from 'crypto';
 import { Otp } from '../models/Otp';
 import { OtpPurpose } from '../types';
 import { env } from '../config/env';
 import { Types } from 'mongoose';
 
 function randomCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100000, 1000000));
 }
 
 interface IssueOptions {
@@ -18,8 +19,12 @@ export async function issueOtp(opts: IssueOptions): Promise<string> {
   const code = randomCode();
   const expiresAt = new Date(Date.now() + env.otpTtlMinutes * 60_000);
   await Otp.create({ ...opts, code, expiresAt, consumed: false });
-  // NOTE: integrate Twilio/FCM/email delivery here. For now the code is returned
-  // to the caller so it can be surfaced in dev / sent by the provider.
+  // NOTE: integrate Twilio/FCM/email delivery here. Until then, surface the code
+  // on the server log in non-production only — never in an API response.
+  if (env.nodeEnv !== 'production') {
+    const target = opts.destination ?? opts.userId ?? opts.bookingId ?? 'unknown';
+    console.log(`[otp] ${opts.purpose} code for ${String(target)}: ${code}`);
+  }
   return code;
 }
 

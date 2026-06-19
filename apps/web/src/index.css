@@ -178,3 +178,225 @@ button:disabled {
   background: #78350f;
   color: #fcd34d;
 }
+.badge-pending {
+  background: #1e3a5f;
+  color: #93c5fd;
+}
+.badge-confirmed {
+  background: #1e3a5f;
+  color: #6ee7b7;
+}
+.badge-preparing,
+.badge-ready {
+  background: #78350f;
+  color: #fcd34d;
+}
+.badge-active {
+  background: #14532d;
+  color: #86efac;
+}
+.badge-completed {
+  background: #1e293b;
+  color: #94a3b8;
+}
+.badge-cancelled,
+.badge-rejected {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+/* --- page header with filter --- */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.page-header h2 {
+  margin: 0;
+}
+.status-filter {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* --- clickable table rows --- */
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.clickable-row:hover td {
+  background: var(--panel-2);
+}
+
+/* --- booking detail --- */
+.booking-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.booking-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.booking-detail-header h2 {
+  margin: 0;
+}
+.booking-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.section-title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.detail-label {
+  margin: 8px 0 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.detail-value {
+  margin: 0;
+  font-size: 14px;
+}
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* --- pricing breakdown --- */
+.pricing-card {
+  max-width: 420px;
+}
+.pricing-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pricing-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+.pricing-row .discount {
+  color: #86efac;
+}
+.pricing-total {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* --- actions --- */
+.actions-card {
+  max-width: 520px;
+}
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.btn-danger {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+.btn-ghost {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* --- OTP display --- */
+.otp-display {
+  margin-top: 20px;
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.otp-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.otp-code {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- cancel prompt --- */
+.cancel-prompt {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 360px;
+}
+
+/* --- vehicle / entity forms --- */
+.vehicle-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin-top: 20px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.form-field-wide {
+  grid-column: 1 / -1;
+}
+.form-field select {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+.form-field textarea {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+.badge-inactive {
+  background: #1e293b;
+  color: #94a3b8;
+}

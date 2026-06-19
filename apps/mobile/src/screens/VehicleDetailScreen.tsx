@@ -1,36 +1,11 @@
-import { useState } from 'react';
-import { View, Text, Image, ScrollView, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, ScrollView, Pressable, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VehicleDetail'>;
 
 export default function VehicleDetailScreen({ route, navigation }: Props) {
   const { vehicle } = route.params;
-  const [booking, setBooking] = useState(false);
-
-  const book = async () => {
-    setBooking(true);
-    try {
-      const start = new Date();
-      const end = new Date(Date.now() + 3 * 86_400_000);
-      await api.post('/bookings', {
-        vehicleId: vehicle._id,
-        startDate: start.toISOString(),
-        endDate: end.toISOString(),
-        plan: 'daily',
-      });
-      Alert.alert('Booking created', 'Your booking is pending confirmation.', [
-        { text: 'View bookings', onPress: () => navigation.navigate('Bookings') },
-        { text: 'OK' },
-      ]);
-    } catch {
-      Alert.alert('Booking failed', 'Please try again.');
-    } finally {
-      setBooking(false);
-    }
-  };
 
   return (
     <ScrollView style={styles.container}>
@@ -48,6 +23,13 @@ export default function VehicleDetailScreen({ route, navigation }: Props) {
           {vehicle.currency} {vehicle.pricing.daily} <Text style={styles.perDay}>/ day</Text>
         </Text>
 
+        {vehicle.rating && vehicle.rating.count > 0 ? (
+          <Text style={styles.rating}>
+            ★ {vehicle.rating.average.toFixed(1)}{' '}
+            <Text style={styles.ratingCount}>({vehicle.rating.count} reviews)</Text>
+          </Text>
+        ) : null}
+
         {vehicle.features.length > 0 && (
           <View style={styles.features}>
             <Text style={styles.sectionTitle}>Features</Text>
@@ -59,8 +41,11 @@ export default function VehicleDetailScreen({ route, navigation }: Props) {
           </View>
         )}
 
-        <Pressable style={styles.button} onPress={book} disabled={booking}>
-          <Text style={styles.buttonText}>{booking ? 'Booking…' : 'Book for 3 days'}</Text>
+        <Pressable
+          style={styles.button}
+          onPress={() => navigation.navigate('BookingConfig', { vehicle })}
+        >
+          <Text style={styles.buttonText}>Book this vehicle</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -75,6 +60,8 @@ const styles = StyleSheet.create({
   meta: { color: '#64748b', marginTop: 6, textTransform: 'capitalize' },
   price: { fontSize: 20, fontWeight: '700', color: '#4f46e5', marginTop: 12 },
   perDay: { fontSize: 14, fontWeight: '400', color: '#64748b' },
+  rating: { fontSize: 15, color: '#f59e0b', fontWeight: '700', marginTop: 8 },
+  ratingCount: { color: '#94a3b8', fontWeight: '400', fontSize: 13 },
   features: { marginTop: 20 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
   feature: { color: '#334155', marginBottom: 4 },

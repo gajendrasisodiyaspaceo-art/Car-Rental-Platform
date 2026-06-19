@@ -7,6 +7,11 @@ export interface User {
   role: Role;
 }
 
+export interface VehicleRating {
+  average: number;
+  count: number;
+}
+
 export interface Vehicle {
   _id: string;
   name: string;
@@ -21,6 +26,17 @@ export interface Vehicle {
   features: string[];
   pricing: { daily: number; weekly?: number; monthly?: number };
   currency: string;
+  rating?: VehicleRating;
+}
+
+export interface BookingPricing {
+  base: number;
+  extras: number;
+  discount: number;
+  tax: number;
+  lateFee: number;
+  total: number;
+  currency: string;
 }
 
 export interface Booking {
@@ -29,6 +45,36 @@ export interface Booking {
   plan: string;
   startDate: string;
   endDate: string;
-  pricing: { total: number; currency: string };
+  pricing: BookingPricing;
+  extras?: string[];
+  discountCode?: string;
   vehicleId?: Pick<Vehicle, '_id' | 'name' | 'images' | 'pricing'> | string;
+}
+
+export interface Payment {
+  _id: string;
+  bookingId: string;
+  method: string;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface Review {
+  _id: string;
+  bookingId: string;
+  vehicleId: string;
+  rating: number;
+  comment?: string;
+  customerId: { name: string } | string;
+  createdAt: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+  parent?: string;
+  isActive: boolean;
 }

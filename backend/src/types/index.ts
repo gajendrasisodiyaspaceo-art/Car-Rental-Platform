@@ -31,5 +31,5 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const PAYMENT_STATUSES = ['pending', 'paid', 'failed', 'refunded'] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const OTP_PURPOSES = ['verification', 'vehicle_access'] as const;
+export const OTP_PURPOSES = ['verification', 'vehicle_access', 'vehicle_return'] as const;
 export type OtpPurpose = (typeof OTP_PURPOSES)[number];
