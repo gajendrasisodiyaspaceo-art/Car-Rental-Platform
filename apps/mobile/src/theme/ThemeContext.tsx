@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 import { api } from '../api/client';
+import { colors } from './tokens';
 
 interface AppTheme {
   primaryColor: string;
@@ -26,7 +27,7 @@ interface ProviderSettings {
 }
 
 const DEFAULT_THEME: AppTheme = {
-  primaryColor: '#4f46e5',
+  primaryColor: colors.accent,
   appName: 'Car Rental',
 };
 

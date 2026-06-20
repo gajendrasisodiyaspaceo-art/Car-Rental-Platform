@@ -13,18 +13,19 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 import type { Booking } from '../types';
+import { colors, font, radius, spacing, shadow } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetail'>;
 
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
-  pending: { bg: '#fef9c3', fg: '#854d0e' },
-  confirmed: { bg: '#dcfce7', fg: '#166534' },
-  preparing: { bg: '#dbeafe', fg: '#1e3a8a' },
-  ready: { bg: '#ede9fe', fg: '#5b21b6' },
-  active: { bg: '#dbeafe', fg: '#1e40af' },
-  completed: { bg: '#e2e8f0', fg: '#475569' },
-  cancelled: { bg: '#fee2e2', fg: '#991b1b' },
-  rejected: { bg: '#fee2e2', fg: '#991b1b' },
+  pending: { bg: 'rgba(244,196,48,0.18)', fg: colors.warning },
+  confirmed: { bg: 'rgba(123,224,138,0.18)', fg: colors.success },
+  preparing: { bg: 'rgba(127,183,255,0.18)', fg: colors.info },
+  ready: { bg: 'rgba(210,243,76,0.18)', fg: colors.accent },
+  active: { bg: 'rgba(127,183,255,0.18)', fg: colors.info },
+  completed: { bg: 'rgba(155,160,141,0.18)', fg: colors.muted },
+  cancelled: { bg: 'rgba(255,107,94,0.18)', fg: colors.danger },
+  rejected: { bg: 'rgba(255,107,94,0.18)', fg: colors.danger },
 };
 
 const CANCELLABLE = new Set(['pending', 'confirmed', 'preparing', 'ready']);
@@ -126,7 +127,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4f46e5" />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -181,6 +182,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           <TextInput
             style={styles.codeInput}
             placeholder="Pickup code"
+            placeholderTextColor={colors.muted}
             value={pickupCode}
             onChangeText={setPickupCode}
             autoCapitalize="characters"
@@ -204,6 +206,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           <TextInput
             style={styles.codeInput}
             placeholder="Return code"
+            placeholderTextColor={colors.muted}
             value={returnCode}
             onChangeText={setReturnCode}
             autoCapitalize="characters"
@@ -231,7 +234,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
 
       {CANCELLABLE.has(booking.status) && (
         <Pressable
-          style={[styles.cancelButton, cancelling && styles.buttonDisabled]}
+          style={[styles.cancelButton, cancelling && styles.cancelButtonDisabled]}
           onPress={cancel}
           disabled={cancelling}
         >
@@ -264,76 +267,122 @@ function Row({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
-  content: { padding: 20, paddingBottom: 40 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#94a3b8' },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.xl, paddingBottom: spacing.xxxl * 2 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  errorText: { color: colors.muted, fontFamily: font.regular, fontSize: font.size.md },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing.sm,
   },
-  name: { fontSize: 22, fontWeight: '800', color: '#0f172a', flex: 1, marginRight: 8 },
+  name: {
+    fontSize: font.size.xl,
+    fontFamily: font.display,
+    fontWeight: '700',
+    color: colors.text,
+    flex: 1,
+    marginRight: spacing.sm,
+  },
   badge: {
-    fontSize: 12,
-    color: '#475569',
-    backgroundColor: '#e2e8f0',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 999,
+    fontSize: font.size.xs,
+    fontFamily: font.medium,
+    color: colors.muted,
+    backgroundColor: colors.raised,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
     textTransform: 'capitalize',
     overflow: 'hidden',
   },
-  meta: { color: '#64748b', fontSize: 14, textTransform: 'capitalize', marginBottom: 16 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 14,
+  meta: {
+    color: colors.muted,
+    fontFamily: font.regular,
+    fontSize: font.size.sm,
+    textTransform: 'capitalize',
+    marginBottom: spacing.lg,
   },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a', marginBottom: 12 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  rowLabel: { color: '#64748b', fontSize: 14 },
-  rowValue: { color: '#0f172a', fontSize: 14, fontWeight: '600' },
-  rowLabelTotal: { color: '#0f172a', fontWeight: '700', fontSize: 16 },
-  rowValueTotal: { color: '#4f46e5', fontWeight: '800', fontSize: 16 },
-  discountText: { color: '#16a34a' },
-  divider: { height: 1, backgroundColor: '#e2e8f0', marginVertical: 8 },
-  hint: { color: '#64748b', fontSize: 13, marginBottom: 10 },
-  codeInput: {
-    backgroundColor: '#f8fafc',
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 10,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
+  sectionTitle: {
+    fontSize: font.size.md,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
+  rowLabel: { color: colors.muted, fontFamily: font.regular, fontSize: font.size.sm },
+  rowValue: { color: colors.text, fontFamily: font.medium, fontSize: font.size.sm },
+  rowLabelTotal: { color: colors.text, fontFamily: font.bold, fontWeight: '700', fontSize: font.size.md },
+  rowValueTotal: { color: colors.accent, fontFamily: font.bold, fontWeight: '700', fontSize: font.size.md },
+  discountText: { color: colors.success },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.sm },
+  hint: { color: colors.muted, fontFamily: font.regular, fontSize: font.size.sm, marginBottom: spacing.md },
+  codeInput: {
+    backgroundColor: colors.input,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    fontSize: font.size.md,
+    fontFamily: font.medium,
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   actionButton: {
-    backgroundColor: '#4f46e5',
-    borderRadius: 10,
-    padding: 14,
+    backgroundColor: colors.accent,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     alignItems: 'center',
   },
-  actionButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  buttonDisabled: { backgroundColor: '#a5b4fc' },
+  actionButtonText: {
+    color: colors.onAccent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.md,
+  },
+  buttonDisabled: { opacity: 0.45 },
   reviewButton: {
-    backgroundColor: '#0f172a',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
-  reviewButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  reviewButtonText: {
+    color: colors.accent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.md,
+  },
   cancelButton: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.transparent,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#dc2626',
-    marginBottom: 12,
+    borderColor: colors.danger,
+    marginBottom: spacing.md,
   },
-  cancelButtonText: { color: '#dc2626', fontWeight: '700', fontSize: 15 },
+  cancelButtonDisabled: { opacity: 0.45 },
+  cancelButtonText: {
+    color: colors.danger,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.md,
+  },
 });

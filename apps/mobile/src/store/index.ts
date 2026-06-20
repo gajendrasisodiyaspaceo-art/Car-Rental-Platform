@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import authReducer from './authSlice';
 import vehiclesReducer from './vehiclesSlice';
 import categoriesReducer from './categoriesSlice';
+import favoritesReducer from './favoritesSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     vehicles: vehiclesReducer,
     categories: categoriesReducer,
+    favorites: favoritesReducer,
   },
 });
 

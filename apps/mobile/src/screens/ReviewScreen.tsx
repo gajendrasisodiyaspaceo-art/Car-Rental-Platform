@@ -11,6 +11,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
+import { colors, font, radius, spacing, shadow } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Review'>;
 
@@ -48,8 +49,14 @@ export default function ReviewScreen({ route, navigation }: Props) {
     }
   };
 
+  const isDisabled = submitting || rating < 1;
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.title}>Leave a review</Text>
       <Text style={styles.subtitle}>How was your experience?</Text>
 
@@ -64,20 +71,23 @@ export default function ReviewScreen({ route, navigation }: Props) {
         {rating > 0 ? `${rating} star${rating > 1 ? 's' : ''}` : 'Tap to rate'}
       </Text>
 
-      <TextInput
-        style={styles.textarea}
-        placeholder="Share your experience (optional)"
-        multiline
-        numberOfLines={4}
-        textAlignVertical="top"
-        value={comment}
-        onChangeText={setComment}
-      />
+      <View style={styles.textareaWrapper}>
+        <TextInput
+          style={styles.textarea}
+          placeholder="Share your experience (optional)"
+          placeholderTextColor={colors.muted}
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          value={comment}
+          onChangeText={setComment}
+        />
+      </View>
 
       <Pressable
-        style={[styles.button, (submitting || rating < 1) && styles.buttonDisabled]}
+        style={[styles.button, isDisabled && styles.buttonDisabled]}
         onPress={onSubmit}
-        disabled={submitting || rating < 1}
+        disabled={isDisabled}
       >
         <Text style={styles.buttonText}>
           {submitting ? 'Submitting…' : 'Submit review'}
@@ -88,30 +98,59 @@ export default function ReviewScreen({ route, navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
-  content: { padding: 24, paddingBottom: 40 },
-  title: { fontSize: 26, fontWeight: '800', color: '#0f172a', marginBottom: 6 },
-  subtitle: { fontSize: 15, color: '#64748b', marginBottom: 28 },
-  starsRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
-  star: { fontSize: 40, color: '#cbd5e1' },
-  starActive: { color: '#f59e0b' },
-  ratingLabel: { color: '#64748b', fontSize: 13, marginBottom: 20 },
-  textarea: {
-    backgroundColor: '#fff',
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.xxl, paddingBottom: spacing.xxxl * 2 },
+  title: {
+    fontSize: font.size.xxl,
+    fontFamily: font.display,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  subtitle: {
+    fontSize: font.size.md,
+    fontFamily: font.regular,
+    color: colors.muted,
+    marginBottom: spacing.xxxl,
+  },
+  starsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
+  star: { fontSize: 40, color: colors.border },
+  starActive: { color: colors.gold },
+  ratingLabel: {
+    color: colors.muted,
+    fontFamily: font.regular,
+    fontSize: font.size.sm,
+    marginBottom: spacing.xl,
+  },
+  textareaWrapper: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 15,
+    borderColor: colors.border,
+    marginBottom: spacing.xl,
+    ...shadow.card,
+  },
+  textarea: {
+    padding: spacing.lg,
+    fontSize: font.size.md,
+    fontFamily: font.regular,
+    color: colors.text,
     minHeight: 120,
-    marginBottom: 20,
   },
   button: {
-    backgroundColor: '#4f46e5',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.accent,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     alignItems: 'center',
+    minHeight: 56,
+    justifyContent: 'center',
   },
-  buttonDisabled: { backgroundColor: '#a5b4fc' },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  buttonDisabled: { opacity: 0.45 },
+  buttonText: {
+    color: colors.onAccent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.lg,
+  },
 });

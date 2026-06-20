@@ -17,6 +17,7 @@ import type { RootStackParamList } from '../navigation/types';
 import type { User, Address, DrivingLicense, Discount } from '../types';
 import { useT } from '../i18n/useT';
 import { useTheme } from '../theme/ThemeContext';
+import { colors, spacing, radius, font, shadow } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
@@ -40,7 +41,7 @@ export default function ProfileScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const authUser = useAppSelector((s) => s.auth.user);
   const { t, lang, setLang } = useT();
-  const { primaryColor, appName } = useTheme();
+  const { appName } = useTheme();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -154,21 +155,25 @@ export default function ProfileScreen({ navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={primaryColor} />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* App name header (themed) */}
-      <Text style={[styles.appNameHeader, { color: primaryColor }]}>{appName}</Text>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* App name header */}
+      <Text style={styles.appNameHeader}>{appName}</Text>
 
       {/* Language switcher */}
       <View style={styles.langRow}>
         <Text style={styles.langLabel}>{t('language')}:</Text>
         <Pressable
-          style={[styles.langBtn, lang === 'en' && { backgroundColor: primaryColor }]}
+          style={[styles.langBtn, lang === 'en' && styles.langBtnActive]}
           onPress={() => void setLang('en')}
         >
           <Text style={[styles.langBtnText, lang === 'en' && styles.langBtnTextActive]}>
@@ -176,7 +181,7 @@ export default function ProfileScreen({ navigation }: Props) {
           </Text>
         </Pressable>
         <Pressable
-          style={[styles.langBtn, lang === 'ar' && { backgroundColor: primaryColor }]}
+          style={[styles.langBtn, lang === 'ar' && styles.langBtnActive]}
           onPress={() => void setLang('ar')}
         >
           <Text style={[styles.langBtnText, lang === 'ar' && styles.langBtnTextActive]}>
@@ -185,8 +190,8 @@ export default function ProfileScreen({ navigation }: Props) {
         </Pressable>
       </View>
 
-      {/* Loyalty points banner */}
-      <View style={[styles.loyaltyCard, { backgroundColor: primaryColor }]}>
+      {/* Loyalty points banner — lime accent card */}
+      <View style={styles.loyaltyCard}>
         <Text style={styles.loyaltyLabel}>{t('loyaltyPoints')}</Text>
         <Text style={styles.loyaltyPoints}>{user?.loyaltyPoints ?? 0}</Text>
         <Text style={styles.loyaltySub}>{t('loyaltySub')}</Text>
@@ -227,7 +232,8 @@ export default function ProfileScreen({ navigation }: Props) {
             value={form.name}
             onChangeText={(v) => setForm((f) => ({ ...f, name: v }))}
             placeholder="Full name"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.muted}
+            selectionColor={colors.accent}
           />
 
           <Text style={styles.fieldLabel}>{t('phone')}</Text>
@@ -236,8 +242,9 @@ export default function ProfileScreen({ navigation }: Props) {
             value={form.phone}
             onChangeText={(v) => setForm((f) => ({ ...f, phone: v }))}
             placeholder="+1 555 000 0000"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.muted}
             keyboardType="phone-pad"
+            selectionColor={colors.accent}
           />
         </View>
       </View>
@@ -252,8 +259,9 @@ export default function ProfileScreen({ navigation }: Props) {
             value={form.licenseNumber}
             onChangeText={(v) => setForm((f) => ({ ...f, licenseNumber: v }))}
             placeholder="e.g. DL-123456"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.muted}
             autoCapitalize="characters"
+            selectionColor={colors.accent}
           />
 
           <Text style={styles.fieldLabel}>{t('licenseExpiry')}</Text>
@@ -262,7 +270,8 @@ export default function ProfileScreen({ navigation }: Props) {
             value={form.licenseExpiry}
             onChangeText={(v) => setForm((f) => ({ ...f, licenseExpiry: v }))}
             placeholder="YYYY-MM-DD"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.muted}
+            selectionColor={colors.accent}
           />
         </View>
       </View>
@@ -283,7 +292,7 @@ export default function ProfileScreen({ navigation }: Props) {
               <View style={styles.addressActions}>
                 {!addr.isDefault && (
                   <Pressable onPress={() => setDefaultAddress(idx)} hitSlop={8}>
-                    <Text style={[styles.setDefaultText, { color: primaryColor }]}>{t('setDefault')}</Text>
+                    <Text style={styles.setDefaultText}>{t('setDefault')}</Text>
                   </Pressable>
                 )}
                 {addr.isDefault && (
@@ -302,14 +311,16 @@ export default function ProfileScreen({ navigation }: Props) {
               value={addr.label ?? ''}
               onChangeText={(v) => updateAddress(idx, 'label', v)}
               placeholder="Label (e.g. Home, Work)"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.muted}
+              selectionColor={colors.accent}
             />
             <TextInput
               style={styles.input}
               value={addr.line1}
               onChangeText={(v) => updateAddress(idx, 'line1', v)}
               placeholder="Street address *"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.muted}
+              selectionColor={colors.accent}
             />
             <View style={styles.twoCol}>
               <TextInput
@@ -317,14 +328,16 @@ export default function ProfileScreen({ navigation }: Props) {
                 value={addr.city ?? ''}
                 onChangeText={(v) => updateAddress(idx, 'city', v)}
                 placeholder="City"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor={colors.muted}
+                selectionColor={colors.accent}
               />
               <TextInput
                 style={[styles.input, styles.flex1]}
                 value={addr.country ?? ''}
                 onChangeText={(v) => updateAddress(idx, 'country', v)}
                 placeholder="Country"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor={colors.muted}
+                selectionColor={colors.accent}
               />
             </View>
           </View>
@@ -362,7 +375,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
       {/* Save button */}
       <Pressable
-        style={[styles.saveBtn, { backgroundColor: primaryColor }, saving && styles.saveBtnDisabled]}
+        style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
         onPress={handleSave}
         disabled={saving}
       >
@@ -373,16 +386,18 @@ export default function ProfileScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
-  content: { padding: 16, paddingBottom: 48 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxxl * 2 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
 
   appNameHeader: {
-    fontSize: 13,
+    fontSize: font.size.xs,
+    fontFamily: font.bold,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 1.5,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    color: colors.accent,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
 
@@ -390,128 +405,240 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginBottom: 16,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
-  langLabel: { fontSize: 13, color: '#64748b', fontWeight: '600' },
+  langLabel: { fontSize: font.size.sm, color: colors.muted, fontFamily: font.medium, fontWeight: '600' },
   langBtn: {
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    backgroundColor: '#e2e8f0',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xs + 2,
+    backgroundColor: colors.raised,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  langBtnText: { fontSize: 13, fontWeight: '600', color: '#475569' },
-  langBtnTextActive: { color: '#fff' },
+  langBtnActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  langBtnText: { fontSize: font.size.sm, fontFamily: font.medium, fontWeight: '600', color: colors.muted },
+  langBtnTextActive: { color: colors.onAccent },
 
   loyaltyCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
     alignItems: 'center',
+    backgroundColor: colors.accent,
+    ...shadow.accent,
   },
-  loyaltyLabel: { color: '#c7d2fe', fontSize: 13, fontWeight: '600', marginBottom: 4 },
-  loyaltyPoints: { color: '#fff', fontSize: 40, fontWeight: '800' },
-  loyaltySub: { color: '#a5b4fc', fontSize: 12, marginTop: 4 },
+  loyaltyLabel: {
+    color: colors.onAccent,
+    fontSize: font.size.sm,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    marginBottom: spacing.xs,
+    opacity: 0.75,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  loyaltyPoints: {
+    color: colors.onAccent,
+    fontSize: 44,
+    fontFamily: font.display,
+    fontWeight: '800',
+    lineHeight: 52,
+  },
+  loyaltySub: {
+    color: colors.onAccent,
+    fontSize: font.size.xs,
+    fontFamily: font.regular,
+    marginTop: spacing.xs,
+    opacity: 0.65,
+  },
 
-  promoScroll: { marginTop: 8 },
+  promoScroll: { marginTop: spacing.sm },
   promoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginRight: 10,
+    backgroundColor: colors.raised,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginRight: spacing.md,
     minWidth: 130,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
     alignItems: 'center',
   },
-  promoCode: { fontSize: 16, fontWeight: '800', color: '#4f46e5' },
-  promoValue: { fontSize: 13, fontWeight: '600', color: '#0f172a', marginTop: 4 },
-  promoExpiry: { fontSize: 11, color: '#94a3b8', marginTop: 4 },
-
-  section: { marginBottom: 20 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
-
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+  promoCode: {
+    fontSize: font.size.lg,
+    fontFamily: font.bold,
+    fontWeight: '800',
+    color: colors.accent,
+  },
+  promoValue: {
+    fontSize: font.size.sm,
+    fontFamily: font.medium,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.xs,
+  },
+  promoExpiry: {
+    fontSize: font.size.xs,
+    color: colors.muted,
+    fontFamily: font.regular,
+    marginTop: spacing.xs,
   },
 
-  fieldLabel: { fontSize: 12, fontWeight: '600', color: '#64748b', marginTop: 10, marginBottom: 4 },
-  fieldReadOnly: { fontSize: 15, color: '#334155', marginBottom: 4 },
+  section: { marginBottom: spacing.xl },
+  sectionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: font.size.md,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
+
+  fieldLabel: {
+    fontSize: font.size.xs,
+    fontFamily: font.medium,
+    fontWeight: '600',
+    color: colors.muted,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  fieldReadOnly: {
+    fontSize: font.size.md,
+    fontFamily: font.regular,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
 
   input: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
+    backgroundColor: colors.input,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#0f172a',
-    marginBottom: 8,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
+    fontSize: font.size.md,
+    fontFamily: font.regular,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
 
   addBtn: {
-    backgroundColor: '#ede9fe',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    backgroundColor: 'rgba(210,243,76,0.12)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xs + 2,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
-  addBtnText: { color: '#4f46e5', fontWeight: '700', fontSize: 13 },
+  addBtnText: {
+    color: colors.accent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.sm,
+  },
 
   addressCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
   },
   addressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
-  addressIndex: { fontSize: 13, fontWeight: '700', color: '#0f172a' },
-  addressActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  setDefaultText: { fontSize: 12, color: '#4f46e5', fontWeight: '600' },
+  addressIndex: {
+    fontSize: font.size.sm,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  addressActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  setDefaultText: {
+    fontSize: font.size.xs,
+    color: colors.accent,
+    fontFamily: font.medium,
+    fontWeight: '600',
+  },
   defaultBadge: {
-    backgroundColor: '#dcfce7',
-    borderRadius: 999,
-    paddingHorizontal: 8,
+    backgroundColor: 'rgba(210,243,76,0.15)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
-  defaultBadgeText: { fontSize: 11, color: '#166534', fontWeight: '700' },
-  removeText: { fontSize: 12, color: '#dc2626', fontWeight: '600' },
+  defaultBadgeText: {
+    fontSize: font.size.xs,
+    color: colors.accent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+  },
+  removeText: {
+    fontSize: font.size.xs,
+    color: colors.danger,
+    fontFamily: font.medium,
+    fontWeight: '600',
+  },
 
-  twoCol: { flexDirection: 'row', gap: 8 },
+  twoCol: { flexDirection: 'row', gap: spacing.sm },
   flex1: { flex: 1 },
 
   actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 13,
+    paddingVertical: spacing.md + 1,
   },
-  actionLabel: { fontSize: 15, color: '#0f172a', fontWeight: '500' },
-  actionChevron: { fontSize: 18, color: '#94a3b8' },
-  logoutLabel: { color: '#dc2626' },
-  divider: { height: 1, backgroundColor: '#f1f5f9' },
+  actionLabel: {
+    fontSize: font.size.md,
+    color: colors.text,
+    fontFamily: font.medium,
+    fontWeight: '500',
+  },
+  actionChevron: { fontSize: 20, color: colors.muted },
+  logoutLabel: { color: colors.danger },
+  divider: { height: 1, backgroundColor: colors.border },
 
   saveBtn: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: spacing.xs,
+    backgroundColor: colors.accent,
+    minHeight: 56,
+    ...shadow.accent,
   },
-  saveBtnDisabled: { backgroundColor: '#a5b4fc' },
-  saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  saveBtnDisabled: { opacity: 0.45 },
+  saveBtnText: {
+    color: colors.onAccent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.lg,
+  },
 });

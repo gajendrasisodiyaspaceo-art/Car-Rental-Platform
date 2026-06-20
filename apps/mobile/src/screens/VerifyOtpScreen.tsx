@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
@@ -11,6 +10,8 @@ import {
 } from 'react-native';
 import { api } from '../api/client';
 import { useAppSelector } from '../store';
+import PrimaryButton from '../components/PrimaryButton';
+import { colors, font, radius, spacing } from '../theme/tokens';
 
 export default function VerifyOtpScreen() {
   const [code, setCode] = useState('');
@@ -46,50 +47,81 @@ export default function VerifyOtpScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Text style={styles.title}>Verify your account</Text>
-      <Text style={styles.subtitle}>
-        Enter the 6-digit code sent to your email.{'\n'}
-        <Text style={styles.devHint}>(dev: check server console for the code)</Text>
-      </Text>
+      <View style={styles.inner}>
+        <Text style={styles.title}>Verify your account</Text>
+        <Text style={styles.subtitle}>
+          Enter the 6-digit code sent to your email.{'\n'}
+          <Text style={styles.devHint}>(dev: check server console for the code)</Text>
+        </Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="6-digit code"
-        keyboardType="number-pad"
-        maxLength={6}
-        value={code}
-        onChangeText={setCode}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="— — — — — —"
+          placeholderTextColor={colors.muted}
+          keyboardType="number-pad"
+          maxLength={6}
+          value={code}
+          onChangeText={setCode}
+          selectionColor={colors.accent}
+        />
 
-      <Pressable style={styles.button} onPress={onSubmit} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Verifying…' : 'Verify'}</Text>
-      </Pressable>
+        <PrimaryButton
+          label={loading ? 'Verifying…' : 'Verify'}
+          onPress={onSubmit}
+          loading={loading}
+          chevrons
+          style={styles.button}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#f8fafc' },
-  title: { fontSize: 26, fontWeight: '800', color: '#0f172a', marginBottom: 8 },
-  subtitle: { fontSize: 14, color: '#64748b', marginBottom: 24, lineHeight: 20 },
-  devHint: { color: '#94a3b8', fontStyle: 'italic' },
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  inner: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  title: {
+    fontSize: font.size.xxl,
+    fontFamily: font.display,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  subtitle: {
+    fontSize: font.size.sm,
+    fontFamily: font.regular,
+    color: colors.muted,
+    lineHeight: 20,
+    marginBottom: spacing.xxl,
+  },
+  devHint: {
+    color: colors.muted,
+    fontStyle: 'italic',
+    fontSize: font.size.xs,
+  },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 22,
-    letterSpacing: 8,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    fontSize: 26,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    letterSpacing: 10,
     textAlign: 'center',
-    marginBottom: 12,
+    color: colors.accent,
+    marginBottom: spacing.md,
   },
   button: {
-    backgroundColor: '#4f46e5',
-    borderRadius: 10,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

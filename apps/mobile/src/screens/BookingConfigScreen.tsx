@@ -14,6 +14,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 import type { Booking } from '../types';
+import { colors, spacing, radius, font } from '../theme/tokens';
+import PrimaryButton from '../components/PrimaryButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BookingConfig'>;
 
@@ -234,6 +236,7 @@ export default function BookingConfigScreen({ route, navigation }: Props) {
       <TextInput
         style={styles.input}
         placeholder="e.g. WELCOME10"
+        placeholderTextColor={colors.muted}
         autoCapitalize="characters"
         value={discountCode}
         onChangeText={setDiscountCode}
@@ -269,80 +272,99 @@ export default function BookingConfigScreen({ route, navigation }: Props) {
         </View>
       </View>
 
-      <Pressable
-        style={[styles.button, (submitting || available === false) && styles.buttonDisabled]}
+      <PrimaryButton
+        label={submitting ? 'Creating booking…' : 'Continue to checkout'}
         onPress={onContinue}
+        loading={submitting}
         disabled={submitting || available === false}
-      >
-        <Text style={styles.buttonText}>
-          {submitting ? 'Creating booking…' : 'Continue to checkout'}
-        </Text>
-      </Pressable>
+        chevrons
+        style={styles.button}
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
-  content: { padding: 20, paddingBottom: 40 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 10 },
-  mt20: { marginTop: 20 },
-  dateRow: { flexDirection: 'row', gap: 12 },
-  dateBlock: { flex: 1 },
-  dateLabel: { fontSize: 12, color: '#64748b', marginBottom: 6 },
-  dateButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
-    padding: 12,
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.xl, paddingBottom: spacing.xxxl + 8 },
+  sectionTitle: {
+    fontSize: font.size.md,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
-  dateText: { color: '#0f172a', fontWeight: '600' },
-  daysText: { marginTop: 10, color: '#64748b', fontSize: 13 },
-  availChecking: { color: '#94a3b8', fontSize: 13, marginTop: 4 },
-  availOk: { color: '#166534', fontSize: 13, marginTop: 4, fontWeight: '600' },
-  availNo: { color: '#dc2626', fontSize: 13, marginTop: 4, fontWeight: '600' },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  mt20: { marginTop: spacing.xl },
+  dateRow: { flexDirection: 'row', gap: spacing.md },
+  dateBlock: { flex: 1 },
+  dateLabel: {
+    fontSize: font.size.xs,
+    fontFamily: font.medium,
+    color: colors.muted,
+    marginBottom: spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  dateButton: {
+    backgroundColor: colors.raised,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+  },
+  dateText: {
+    color: colors.text,
+    fontFamily: font.medium,
+    fontWeight: '600',
+    fontSize: font.size.md,
+  },
+  daysText: { marginTop: spacing.sm, color: colors.muted, fontSize: font.size.sm },
+  availChecking: { color: colors.muted, fontSize: font.size.sm, marginTop: spacing.xs },
+  availOk: { color: colors.success, fontSize: font.size.sm, marginTop: spacing.xs, fontFamily: font.bold, fontWeight: '600' },
+  availNo: { color: colors.danger, fontSize: font.size.sm, marginTop: spacing.xs, fontFamily: font.bold, fontWeight: '600' },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     borderWidth: 1,
-    borderColor: '#cbd5e1',
-    borderRadius: 999,
-    paddingHorizontal: 14,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 7,
-    backgroundColor: '#fff',
+    backgroundColor: colors.raised,
   },
-  chipActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
-  chipText: { color: '#475569', fontSize: 13, fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
+  chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  chipText: { color: colors.muted, fontSize: font.size.sm, fontFamily: font.bold, fontWeight: '600' },
+  chipTextActive: { color: colors.onAccent },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 15,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    padding: spacing.lg,
+    fontSize: font.size.md,
+    fontFamily: font.medium,
+    color: colors.text,
   },
   breakdown: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 20,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginTop: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  breakdownTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a', marginBottom: 12 },
-  breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  breakdownLabel: { color: '#64748b', fontSize: 14 },
-  breakdownValue: { color: '#0f172a', fontSize: 14, fontWeight: '600' },
-  discount: { color: '#16a34a' },
-  totalRow: { borderTopWidth: 1, borderTopColor: '#e2e8f0', marginTop: 8, paddingTop: 10 },
-  totalLabel: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  totalValue: { fontSize: 16, fontWeight: '800', color: '#4f46e5' },
-  button: {
-    backgroundColor: '#4f46e5',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 24,
+  breakdownTitle: {
+    fontSize: font.size.md,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.md,
   },
-  buttonDisabled: { backgroundColor: '#a5b4fc' },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
+  breakdownLabel: { color: colors.muted, fontSize: font.size.sm },
+  breakdownValue: { color: colors.text, fontSize: font.size.sm, fontFamily: font.medium, fontWeight: '600' },
+  discount: { color: colors.success },
+  totalRow: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: spacing.sm, paddingTop: spacing.md },
+  totalLabel: { fontSize: font.size.lg, fontFamily: font.bold, fontWeight: '700', color: colors.text },
+  totalValue: { fontSize: font.size.lg, fontFamily: font.bold, fontWeight: '800', color: colors.accent },
+  button: { marginTop: spacing.xxl },
 });

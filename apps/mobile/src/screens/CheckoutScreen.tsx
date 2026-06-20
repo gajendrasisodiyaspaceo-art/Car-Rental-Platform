@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  Pressable,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -12,6 +11,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 import type { Booking } from '../types';
+import { colors, spacing, radius, font } from '../theme/tokens';
+import PrimaryButton from '../components/PrimaryButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
 
@@ -66,7 +67,7 @@ export default function CheckoutScreen({ route, navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4f46e5" />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -114,9 +115,14 @@ export default function CheckoutScreen({ route, navigation }: Props) {
         </View>
       </View>
 
-      <Pressable style={[styles.button, paying && styles.buttonDisabled]} onPress={onConfirm} disabled={paying}>
-        <Text style={styles.buttonText}>{paying ? 'Processing…' : 'Confirm booking'}</Text>
-      </Pressable>
+      <PrimaryButton
+        label={paying ? 'Processing…' : 'Confirm booking'}
+        onPress={onConfirm}
+        loading={paying}
+        disabled={paying}
+        chevrons
+        style={styles.button}
+      />
     </ScrollView>
   );
 }
@@ -141,44 +147,50 @@ function Row({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
-  content: { padding: 20, paddingBottom: 40 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#94a3b8' },
-  heading: { fontSize: 24, fontWeight: '800', color: '#0f172a', marginBottom: 20 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 14,
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.xl, paddingBottom: spacing.xxxl + 8 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  errorText: { color: colors.muted, fontFamily: font.regular, fontSize: font.size.md },
+  heading: {
+    fontSize: font.size.xxl,
+    fontFamily: font.display,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.xl,
   },
-  cardTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  meta: { color: '#64748b', marginTop: 4, textTransform: 'capitalize' },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a', marginBottom: 12 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  rowLabel: { color: '#64748b', fontSize: 14 },
-  rowValue: { color: '#0f172a', fontSize: 14, fontWeight: '600' },
-  rowLabelTotal: { color: '#0f172a', fontWeight: '700', fontSize: 16 },
-  rowValueTotal: { color: '#4f46e5', fontWeight: '800', fontSize: 16 },
-  discountText: { color: '#16a34a' },
-  divider: { height: 1, backgroundColor: '#e2e8f0', marginVertical: 8 },
-  methodRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  cardTitle: { fontSize: font.size.lg, fontFamily: font.bold, fontWeight: '700', color: colors.text },
+  meta: { color: colors.muted, marginTop: spacing.xs, textTransform: 'capitalize', fontSize: font.size.sm },
+  sectionTitle: {
+    fontSize: font.size.md,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
+  rowLabel: { color: colors.muted, fontSize: font.size.sm },
+  rowValue: { color: colors.text, fontSize: font.size.sm, fontFamily: font.medium, fontWeight: '600' },
+  rowLabelTotal: { color: colors.text, fontFamily: font.bold, fontWeight: '700', fontSize: font.size.md },
+  rowValueTotal: { color: colors.accent, fontFamily: font.bold, fontWeight: '800', fontSize: font.size.md },
+  discountText: { color: colors.success },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.sm },
+  methodRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   methodDot: {
     width: 16,
     height: 16,
-    borderRadius: 8,
-    backgroundColor: '#4f46e5',
+    borderRadius: radius.pill,
+    backgroundColor: colors.accent,
     borderWidth: 3,
-    borderColor: '#c7d2fe',
+    borderColor: colors.onAccent,
   },
-  methodLabel: { fontSize: 15, color: '#0f172a', fontWeight: '600' },
-  button: {
-    backgroundColor: '#4f46e5',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: { backgroundColor: '#a5b4fc' },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  methodLabel: { fontSize: font.size.md, fontFamily: font.bold, color: colors.text, fontWeight: '600' },
+  button: { marginTop: spacing.sm },
 });
