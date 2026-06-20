@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchVehicles, type VehicleFilters } from '../store/vehiclesSlice';
 import { useFavorites } from '../hooks/useFavorites';
@@ -44,6 +45,7 @@ export default function CarListScreen({ route, navigation }: Props) {
   const dispatch = useAppDispatch();
   const { items: vehicles, status } = useAppSelector((s) => s.vehicles);
   const { isFavorite, toggle } = useFavorites();
+  const tabBarClearance = useTabBarClearance();
 
   const resolveInitialKey = (): FilterKey => {
     const f = initialFilter;
@@ -155,7 +157,10 @@ export default function CarListScreen({ route, navigation }: Props) {
           data={vehicles}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: tabBarClearance },
+          ]}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.listSep} />}
         />
@@ -274,7 +279,6 @@ const styles = StyleSheet.create({
   // List
   listContent: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxxl + spacing.xxxl,
   },
   listSep: { height: spacing.md },
 });

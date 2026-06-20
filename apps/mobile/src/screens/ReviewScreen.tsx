@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 import { colors, font, radius, spacing, shadow } from '../theme/tokens';
@@ -17,6 +18,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Review'>;
 
 export default function ReviewScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
+  const insets = useSafeAreaInsets();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -54,7 +56,13 @@ export default function ReviewScreen({ route, navigation }: Props) {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        {
+          paddingTop: insets.top + spacing.xxl,
+          paddingBottom: insets.bottom + spacing.xxl,
+        },
+      ]}
       keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.title}>Leave a review</Text>
@@ -99,7 +107,7 @@ export default function ReviewScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.xxl, paddingBottom: spacing.xxxl * 2 },
+  content: { paddingHorizontal: spacing.xxl },
   title: {
     fontSize: font.size.xxl,
     fontFamily: font.display,

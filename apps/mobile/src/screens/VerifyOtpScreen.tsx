@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../api/client';
 import { useAppSelector } from '../store';
 import PrimaryButton from '../components/PrimaryButton';
@@ -17,6 +18,7 @@ export default function VerifyOtpScreen() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const user = useAppSelector((s) => s.auth.user);
+  const insets = useSafeAreaInsets();
 
   const onSubmit = async () => {
     if (!user) {
@@ -47,7 +49,12 @@ export default function VerifyOtpScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.inner}>
+      <View
+        style={[
+          styles.inner,
+          { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.lg },
+        ]}
+      >
         <Text style={styles.title}>Verify your account</Text>
         <Text style={styles.subtitle}>
           Enter the 6-digit code sent to your email.{'\n'}

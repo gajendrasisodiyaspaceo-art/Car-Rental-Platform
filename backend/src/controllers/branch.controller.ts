@@ -4,17 +4,18 @@ import { Branch } from '../models/Branch';
 import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
 
-export const branchBodySchema = z.object({
-  body: z.object({
-    name: z.string().min(1),
-    address: z.string().min(1),
-    city: z.string().optional(),
-    country: z.string().optional(),
-    location: z.object({ lat: z.number(), lng: z.number() }).optional(),
-    operatingHours: z.string().optional(),
-    isActive: z.boolean().optional(),
-  }),
+const branchFields = z.object({
+  name: z.string().min(1),
+  address: z.string().min(1),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  location: z.object({ lat: z.number(), lng: z.number() }).optional(),
+  operatingHours: z.string().optional(),
+  isActive: z.boolean().optional(),
 });
+
+export const branchBodySchema = z.object({ body: branchFields.strict() });
+export const branchUpdateSchema = z.object({ body: branchFields.partial().strict() });
 
 export async function listBranches(req: Request, res: Response): Promise<void> {
   const filter: Record<string, unknown> = {};

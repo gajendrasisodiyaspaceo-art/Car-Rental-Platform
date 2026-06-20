@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
@@ -45,6 +46,7 @@ function calcBase(dailyRate: number, weekly: number | undefined, monthly: number
 
 export default function BookingConfigScreen({ route, navigation }: Props) {
   const { vehicle } = route.params;
+  const insets = useSafeAreaInsets();
 
   const tomorrow = new Date(Date.now() + 86_400_000);
   const dayAfter = new Date(Date.now() + 2 * 86_400_000);
@@ -159,7 +161,10 @@ export default function BookingConfigScreen({ route, navigation }: Props) {
   const plans: Plan[] = ['daily', 'weekly', 'monthly'];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+    >
       <Text style={styles.sectionTitle}>Select dates</Text>
 
       <View style={styles.dateRow}>
@@ -286,7 +291,7 @@ export default function BookingConfigScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl + 8 },
+  content: { padding: spacing.xl },
   sectionTitle: {
     fontSize: font.size.md,
     fontFamily: font.bold,

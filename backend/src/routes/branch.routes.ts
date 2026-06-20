@@ -8,6 +8,7 @@ import {
   updateBranch,
   deleteBranch,
   branchBodySchema,
+  branchUpdateSchema,
 } from '../controllers/branch.controller';
 
 const router = Router();
@@ -20,7 +21,13 @@ router.post(
   validate(branchBodySchema),
   asyncHandler(createBranch),
 );
-router.put('/:id', authenticate, authorize('provider', 'staff'), asyncHandler(updateBranch));
+router.put(
+  '/:id',
+  authenticate,
+  authorize('provider', 'staff'),
+  validate(branchUpdateSchema),
+  asyncHandler(updateBranch),
+);
 router.delete('/:id', authenticate, authorize('provider', 'staff'), asyncHandler(deleteBranch));
 
 export default router;

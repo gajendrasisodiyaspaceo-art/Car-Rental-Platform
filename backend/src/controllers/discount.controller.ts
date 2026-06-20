@@ -5,18 +5,17 @@ import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
 import { DISCOUNT_TYPES } from '../types';
 
-export const discountBodySchema = z.object({
-  body: z
-    .object({
-      code: z.string().min(2).max(32),
-      type: z.enum(DISCOUNT_TYPES),
-      value: z.number().min(0),
-      isActive: z.boolean().optional(),
-      expiresAt: z.coerce.date().optional(),
-      maxRedemptions: z.number().int().positive().optional(),
-    })
-    .strict(),
+const discountFields = z.object({
+  code: z.string().min(2).max(32),
+  type: z.enum(DISCOUNT_TYPES),
+  value: z.number().min(0),
+  isActive: z.boolean().optional(),
+  expiresAt: z.coerce.date().optional(),
+  maxRedemptions: z.number().int().positive().optional(),
 });
+
+export const discountBodySchema = z.object({ body: discountFields.strict() });
+export const discountUpdateSchema = z.object({ body: discountFields.partial().strict() });
 
 /** Provider lists their own discount codes. */
 export async function listDiscounts(req: Request, res: Response): Promise<void> {

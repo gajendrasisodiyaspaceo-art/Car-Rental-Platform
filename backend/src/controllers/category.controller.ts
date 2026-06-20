@@ -4,14 +4,15 @@ import { VehicleCategory } from '../models/VehicleCategory';
 import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
 
-export const categoryBodySchema = z.object({
-  body: z.object({
-    name: z.string().min(1),
-    description: z.string().optional(),
-    parent: z.string().optional(),
-    isActive: z.boolean().optional(),
-  }),
+const categoryFields = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  parent: z.string().optional(),
+  isActive: z.boolean().optional(),
 });
+
+export const categoryBodySchema = z.object({ body: categoryFields.strict() });
+export const categoryUpdateSchema = z.object({ body: categoryFields.partial().strict() });
 
 export async function listCategories(req: Request, res: Response): Promise<void> {
   const filter: Record<string, unknown> = {};

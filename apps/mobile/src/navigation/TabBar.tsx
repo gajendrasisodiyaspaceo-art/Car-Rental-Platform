@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import AnimatedPressable from '../components/AnimatedPressable';
 import { Icon, type IconName } from '../components/icons';
@@ -12,6 +13,22 @@ const TAB_ICONS: Record<string, IconName> = {
   FavoritesTab: 'heart',
   ProfileTab: 'profile',
 };
+
+// Visible footprint of the floating bar (item 48 + paddingVertical spacing.sm * 2).
+// Screens that keep the bar use this (via useTabBarClearance) to pad their content.
+export const TAB_BAR_HEIGHT = 48 + spacing.sm * 2;
+
+// Deep-flow screens render full-screen: the floating bar is hidden so their bottom
+// CTAs sit at the true bottom. Keep in sync with the nested stack route names.
+const HIDE_ON = [
+  'VehicleDetail',
+  'BookingConfig',
+  'Checkout',
+  'BookingDetail',
+  'Review',
+  'Notifications',
+  'VerifyOtp',
+];
 
 // Animates the lime active pill per-tab: scale 0.6->1, opacity 0->1 on focus.
 function useActivePill(focused: boolean) {
@@ -56,6 +73,13 @@ function useActivePill(focused: boolean) {
 // Floating dark tab bar with a lime active pill.
 export default function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+
+  // Hide the bar when the focused tab has pushed into a deep flow screen.
+  const activeTabRoute = state.routes[state.index];
+  const focusedRouteName = getFocusedRouteNameFromRoute(activeTabRoute);
+  if (focusedRouteName && HIDE_ON.includes(focusedRouteName)) {
+    return null;
+  }
 
   return (
     <View

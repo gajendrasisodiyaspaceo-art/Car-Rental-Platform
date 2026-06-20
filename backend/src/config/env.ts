@@ -28,6 +28,31 @@ function resolveJwtSecret(): string {
   return secret ?? 'dev-insecure-secret-do-not-use-in-production';
 }
 
+// `trust proxy` for Express so req.ip is the real client behind a load
+// balancer. Default false (don't trust X-Forwarded-For) — set TRUST_PROXY only
+// when actually behind a proxy, e.g. TRUST_PROXY=1 or TRUST_PROXY=loopback.
+// In production a wildcard CORS origin is unsafe (especially with credentials);
+// require an explicit allowlist. Dev/test may default to '*'.
+function resolveCorsOrigin(): string {
+  const origin = process.env.CORS_ORIGIN;
+  if (nodeEnv === 'production') {
+    if (!origin || origin.trim() === '*' || origin.trim() === '') {
+      throw new Error('CORS_ORIGIN must be an explicit allowlist (not "*") in production.');
+    }
+    return origin;
+  }
+  return origin ?? '*';
+}
+
+function resolveTrustProxy(): boolean | number | string {
+  const raw = process.env.TRUST_PROXY;
+  if (raw === undefined || raw === '') return false;
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  const n = Number(raw);
+  return Number.isNaN(n) ? raw : n;
+}
+
 export const env = {
   port: Number(process.env.PORT ?? 4000),
   nodeEnv,
@@ -35,5 +60,6 @@ export const env = {
   jwtSecret: resolveJwtSecret(),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   otpTtlMinutes: Number(process.env.OTP_TTL_MINUTES ?? 5),
-  corsOrigin: process.env.CORS_ORIGIN ?? '*',
+  corsOrigin: resolveCorsOrigin(),
+  trustProxy: resolveTrustProxy(),
 } as const;

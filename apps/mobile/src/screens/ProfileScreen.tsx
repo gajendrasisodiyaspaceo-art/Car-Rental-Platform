@@ -10,7 +10,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../api/client';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
 import { useAppDispatch, useAppSelector } from '../store';
 import { logout } from '../store/authSlice';
 import type { RootStackParamList } from '../navigation/types';
@@ -42,6 +44,8 @@ export default function ProfileScreen({ navigation }: Props) {
   const authUser = useAppSelector((s) => s.auth.user);
   const { t, lang, setLang } = useT();
   const { appName } = useTheme();
+  const insets = useSafeAreaInsets();
+  const tabBarClearance = useTabBarClearance();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -163,7 +167,10 @@ export default function ProfileScreen({ navigation }: Props) {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top + spacing.lg, paddingBottom: tabBarClearance },
+      ]}
       showsVerticalScrollIndicator={false}
     >
       {/* App name header */}
@@ -387,7 +394,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxxl * 2 },
+  content: { paddingHorizontal: spacing.lg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
 
   appNameHeader: {

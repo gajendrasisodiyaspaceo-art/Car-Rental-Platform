@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../store';
 import { register } from '../store/authSlice';
 import type { RootStackParamList } from '../navigation/types';
@@ -24,6 +25,7 @@ export default function SignupScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
   const { status, error } = useAppSelector((s) => s.auth);
 
   const onSubmit = () => {
@@ -36,7 +38,13 @@ export default function SignupScreen({ navigation }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: insets.top + spacing.xxxl,
+            paddingBottom: insets.bottom + spacing.xxxl,
+          },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -112,7 +120,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxxl,
   },
   title: {
     fontSize: font.size.xxxl,

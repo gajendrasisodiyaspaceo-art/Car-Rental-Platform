@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
 import type { Booking, Vehicle } from '../types';
 import type { RootStackParamList } from '../navigation/types';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
 import { colors, font, radius, spacing, shadow } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
@@ -19,6 +20,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 };
 
 export default function BookingsScreen({ navigation }: Props) {
+  const tabBarClearance = useTabBarClearance();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [rebooking, setRebooking] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export default function BookingsScreen({ navigation }: Props) {
   return (
     <FlatList
       style={styles.list}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarClearance }]}
       data={bookings}
       keyExtractor={(item) => item._id}
       refreshControl={
@@ -124,7 +126,7 @@ export default function BookingsScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   list: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxxl * 2 },
+  content: { padding: spacing.lg },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,

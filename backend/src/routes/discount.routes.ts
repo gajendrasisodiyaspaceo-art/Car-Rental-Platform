@@ -9,6 +9,7 @@ import {
   updateDiscount,
   deleteDiscount,
   discountBodySchema,
+  discountUpdateSchema,
 } from '../controllers/discount.controller';
 
 const router = Router();
@@ -20,7 +21,7 @@ router.get('/active', asyncHandler(listActiveDiscounts));
 router.use(authenticate, authorize('provider', 'staff'));
 router.get('/', asyncHandler(listDiscounts));
 router.post('/', validate(discountBodySchema), asyncHandler(createDiscount));
-router.put('/:id', asyncHandler(updateDiscount));
+router.put('/:id', validate(discountUpdateSchema), asyncHandler(updateDiscount));
 router.delete('/:id', asyncHandler(deleteDiscount));
 
 export default router;

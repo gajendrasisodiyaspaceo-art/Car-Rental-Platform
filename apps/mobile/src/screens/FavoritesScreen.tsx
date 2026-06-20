@@ -15,6 +15,7 @@ import CarCard from '../components/CarCard';
 import PrimaryButton from '../components/PrimaryButton';
 import { Icon } from '../components/icons';
 import { colors, font, radius, spacing } from '../theme/tokens';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Favorites'>;
@@ -45,6 +46,7 @@ export default function FavoritesScreen({ navigation }: Props) {
   const allVehicles = useAppSelector((s) => s.vehicles.items);
   const status = useAppSelector((s) => s.vehicles.status);
   const { ids, isFavorite, toggle } = useFavorites();
+  const tabBarClearance = useTabBarClearance();
 
   useEffect(() => {
     if (allVehicles.length === 0 && ids.length > 0) {
@@ -93,7 +95,10 @@ export default function FavoritesScreen({ navigation }: Props) {
         data={favVehicles}
         keyExtractor={(v) => v._id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: tabBarClearance },
+        ]}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({ item }) => (
           <View style={styles.cardWrap}>
@@ -167,7 +172,6 @@ const styles = StyleSheet.create({
 
   listContent: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxxl,
     paddingTop: spacing.xs,
   },
   separator: { height: spacing.md },

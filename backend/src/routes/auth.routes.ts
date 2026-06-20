@@ -17,12 +17,26 @@ import {
 
 const router = Router();
 
-// Brute-force protection on unauthenticated, credential-sensitive endpoints.
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
+const WINDOW_MS = 15 * 60 * 1000;
 
-router.post('/register', authLimiter, validate(registerSchema), asyncHandler(register));
-router.post('/login', authLimiter, validate(loginSchema), asyncHandler(login));
-router.post('/verify-otp', authLimiter, validate(verifyOtpSchema), asyncHandler(confirmOtp));
+// Brute-force protection on unauthenticated, credential-sensitive endpoints.
+// Login and OTP verify also key on the target account so an attacker rotating
+// IPs can't get unlimited guesses against one victim.
+const ipLimiter = rateLimit({ windowMs: WINDOW_MS, max: 10 });
+const loginLimiter = rateLimit({
+  windowMs: WINDOW_MS,
+  max: 10,
+  keyGenerator: (req) => `login:${req.ip}:${String((req.body as { email?: string })?.email ?? '')}`,
+});
+const otpLimiter = rateLimit({
+  windowMs: WINDOW_MS,
+  max: 10,
+  keyGenerator: (req) => `otp:${req.ip}:${String((req.body as { userId?: string })?.userId ?? '')}`,
+});
+
+router.post('/register', ipLimiter, validate(registerSchema), asyncHandler(register));
+router.post('/login', loginLimiter, validate(loginSchema), asyncHandler(login));
+router.post('/verify-otp', otpLimiter, validate(verifyOtpSchema), asyncHandler(confirmOtp));
 router.get('/me', authenticate, asyncHandler(me));
 router.put('/me', authenticate, validate(updateMeSchema), asyncHandler(updateMe));
 

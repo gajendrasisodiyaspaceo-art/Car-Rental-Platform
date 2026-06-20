@@ -17,6 +17,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import CarCard from '../components/CarCard';
 import { Icon } from '../components/icons';
 import { colors, font, radius, shadow, spacing } from '../theme/tokens';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'NearestLocation'>;
@@ -202,6 +203,7 @@ export default function NearestLocationScreen({ navigation }: Props) {
   const vehicles = useAppSelector((s) => s.vehicles.items);
   const status = useAppSelector((s) => s.vehicles.status);
   const { isFavorite, toggle } = useFavorites();
+  const tabBarClearance = useTabBarClearance();
 
   useEffect(() => {
     if (vehicles.length === 0) {
@@ -249,7 +251,7 @@ export default function NearestLocationScreen({ navigation }: Props) {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.carListContent}
-        style={styles.carList}
+        style={[styles.carList, { marginBottom: tabBarClearance }]}
         renderItem={({ item }) => (
           <View style={styles.carCardWrap}>
             <CarCard

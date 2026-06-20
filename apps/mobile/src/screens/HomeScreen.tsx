@@ -11,7 +11,9 @@ import {
   Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchVehicles } from '../store/vehiclesSlice';
 import { fetchCategories } from '../store/categoriesSlice';
@@ -80,6 +82,8 @@ export default function HomeScreen({ navigation }: Props) {
   const user = useAppSelector((s) => s.auth.user);
   const { items: categories } = useAppSelector((s) => s.categories);
   const { isFavorite, toggle } = useFavorites();
+  const insets = useSafeAreaInsets();
+  const tabBarClearance = useTabBarClearance();
 
   // ── Filter state (preserve existing logic) ──
   const [query, setQuery] = useState('');
@@ -207,7 +211,7 @@ export default function HomeScreen({ navigation }: Props) {
 
   // ─── List header ────────────────────────────────────────────────────────
   const ListHeader = (
-    <View style={styles.listHeader}>
+    <View style={[styles.listHeader, { paddingTop: insets.top + spacing.md }]}>
       {/* ── Top bar ── */}
       <Entrance index={0}>
         <View style={styles.topBar}>
@@ -528,7 +532,7 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <FlatList
       style={styles.root}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarClearance }]}
       data={sortedItems}
       keyExtractor={(item) => item._id}
       refreshControl={
@@ -572,11 +576,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   content: {
-    paddingBottom: spacing.xxxl + 80, // room for tab bar
     flexGrow: 1,
   },
   listHeader: {
-    paddingTop: 52,
     gap: 0,
   },
 

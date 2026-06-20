@@ -68,4 +68,22 @@ userSchema.methods.comparePassword = function comparePassword(candidate: string)
   return bcrypt.compare(candidate, this.password);
 };
 
+// Belt-and-suspenders: never serialize the password hash or version key, even
+// if a query accidentally selects them. (password is already `select: false`.)
+userSchema.set('toJSON', {
+  transform(_doc, ret) {
+    const obj = ret as unknown as Record<string, unknown>;
+    delete obj.password;
+    delete obj.__v;
+    return obj;
+  },
+});
+
+/**
+ * Fields safe to return in management lists (admin/staff). Deliberately omits
+ * customer PII (drivingLicense, addresses) so it is never exposed in bulk.
+ */
+export const USER_LIST_FIELDS =
+  'name email phone role status approved isVerified providerId loyaltyPoints createdAt updatedAt';
+
 export const User = model<IUser>('User', userSchema);

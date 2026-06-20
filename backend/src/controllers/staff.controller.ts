@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { User } from '../models/User';
+import { User, USER_LIST_FIELDS } from '../models/User';
 import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
 import { USER_STATUSES } from '../types';
@@ -33,7 +33,9 @@ export const updateStaffSchema = z.object({
 /** Provider lists their own staff. */
 export async function listStaff(req: Request, res: Response): Promise<void> {
   const providerId = providerScope(req.user);
-  const items = await User.find({ providerId, role: 'staff' }).sort('-createdAt');
+  const items = await User.find({ providerId, role: 'staff' })
+    .select(USER_LIST_FIELDS)
+    .sort('-createdAt');
   res.json({ success: true, data: items });
 }
 
@@ -61,7 +63,7 @@ export async function updateStaff(req: Request, res: Response): Promise<void> {
     { _id: req.params.id, providerId, role: 'staff' },
     { $set: req.body },
     { new: true },
-  );
+  ).select(USER_LIST_FIELDS);
   if (!staff) throw ApiError.notFound('Staff member not found');
   res.json({ success: true, data: staff });
 }

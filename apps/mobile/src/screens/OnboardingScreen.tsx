@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import PrimaryButton from '../components/PrimaryButton';
 import { colors, font, radius, spacing } from '../theme/tokens';
@@ -21,11 +22,13 @@ const { width: W, height: H } = Dimensions.get('window');
 // bleeds upward *out* of it — breaking the frame and creating a layered depth
 // that reads editorial rather than templated.
 const HERO_IMG = 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80';
-const PANEL_HEIGHT = H * 0.62;
-const IMG_HEIGHT = H * 0.44;
-const IMG_TOP = H * 0.12; // car sits above the panel top edge
+const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
+const PANEL_HEIGHT = clamp(H * 0.62, 420, 640);
+const IMG_HEIGHT = clamp(H * 0.44, 280, 460);
+const IMG_TOP = clamp(H * 0.12, 64, 180); // car sits above the panel top edge
 
 export default function OnboardingScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const panelY = useRef(new Animated.Value(60)).current;
   const panelOpacity = useRef(new Animated.Value(0)).current;
   const carY = useRef(new Animated.Value(30)).current;
@@ -61,7 +64,7 @@ export default function OnboardingScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       {/* Dark top zone — status bar breathing room + tag line */}
-      <View style={styles.topZone}>
+      <View style={[styles.topZone, { paddingTop: insets.top + spacing.xl }]}>
         <Animated.View style={{ opacity: textOpacity }}>
           <Text style={styles.eyebrow}>DRIVECLUB</Text>
         </Animated.View>
@@ -71,6 +74,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       <Animated.View
         style={[
           styles.heroPanel,
+          { paddingBottom: spacing.xxl + insets.bottom },
           { opacity: panelOpacity, transform: [{ translateY: panelY }] },
         ]}
       >
@@ -135,7 +139,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: H * 0.18,
-    paddingTop: 56,
     paddingHorizontal: spacing.xxl,
   },
   eyebrow: {

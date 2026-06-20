@@ -6,29 +6,35 @@ import { providerScope } from '../utils/scope';
 import { hasBookingConflict } from '../utils/availability';
 import { FUEL_TYPES, TRANSMISSIONS, VEHICLE_STATUSES } from '../types';
 
-export const vehicleBodySchema = z.object({
-  body: z.object({
-    categoryId: z.string(),
-    branchId: z.string().optional(),
-    name: z.string().min(1),
-    make: z.string().optional(),
-    model: z.string().optional(),
-    year: z.number().int().optional(),
-    plateNumber: z.string().optional(),
-    seats: z.number().int().optional(),
-    transmission: z.enum(TRANSMISSIONS).optional(),
-    fuelType: z.enum(FUEL_TYPES).optional(),
-    images: z.array(z.string()).optional(),
-    features: z.array(z.string()).optional(),
-    pricing: z.object({
-      daily: z.number().positive(),
-      weekly: z.number().positive().optional(),
-      monthly: z.number().positive().optional(),
-    }),
-    currency: z.string().optional(),
-    status: z.enum(VEHICLE_STATUSES).optional(),
-    rentalTerms: z.string().optional(),
+const vehicleFields = z.object({
+  categoryId: z.string(),
+  branchId: z.string().optional(),
+  name: z.string().min(1),
+  make: z.string().optional(),
+  model: z.string().optional(),
+  year: z.number().int().optional(),
+  plateNumber: z.string().optional(),
+  seats: z.number().int().optional(),
+  transmission: z.enum(TRANSMISSIONS).optional(),
+  fuelType: z.enum(FUEL_TYPES).optional(),
+  images: z.array(z.string()).optional(),
+  features: z.array(z.string()).optional(),
+  pricing: z.object({
+    daily: z.number().positive(),
+    weekly: z.number().positive().optional(),
+    monthly: z.number().positive().optional(),
   }),
+  currency: z.string().optional(),
+  status: z.enum(VEHICLE_STATUSES).optional(),
+  rentalTerms: z.string().optional(),
+});
+
+export const vehicleBodySchema = z.object({
+  body: vehicleFields.strict(),
+});
+
+export const vehicleUpdateSchema = z.object({
+  body: vehicleFields.partial().strict(),
 });
 
 /** Public browse + search with filters. */

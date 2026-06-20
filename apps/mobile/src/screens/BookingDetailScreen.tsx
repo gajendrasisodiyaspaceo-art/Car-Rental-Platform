@@ -10,6 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 import type { Booking } from '../types';
@@ -39,6 +40,7 @@ function vehicleName(booking: Booking): string {
 
 export default function BookingDetailScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
+  const insets = useSafeAreaInsets();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [pickupCode, setPickupCode] = useState('');
@@ -144,7 +146,10 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   const statusColor = STATUS_COLORS[booking.status];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+    >
       <View style={styles.headerRow}>
         <Text style={styles.name}>{vehicleName(booking)}</Text>
         <Text
@@ -268,7 +273,7 @@ function Row({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl * 2 },
+  content: { padding: spacing.xl },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
   errorText: { color: colors.muted, fontFamily: font.regular, fontSize: font.size.md },
   headerRow: {

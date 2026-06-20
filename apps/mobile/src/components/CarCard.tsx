@@ -80,7 +80,7 @@ export default function CarCard({
         </Text>
 
         <View style={styles.footerRow}>
-          <Text style={styles.price}>
+          <Text style={styles.price} numberOfLines={1}>
             {vehicle.currency} {vehicle.pricing.daily}
             <Text style={styles.perDay}> /day</Text>
           </Text>
@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...shadow.card,
   },
-  cardWide: { flexDirection: 'row' },
+  cardWide: { flexDirection: 'row', height: 120 },
   imageWrap: {
     width: '100%',
     height: 140,
     backgroundColor: colors.raised,
   },
-  imageWrapWide: { width: 130, height: 'auto' },
+  imageWrapWide: { width: 116, height: '100%' },
   image: { width: '100%', height: '100%' },
   fallback: {
     width: '100%',
@@ -161,8 +161,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.sm,
   },
   price: {
+    flexShrink: 1,
     color: colors.text,
     fontSize: font.size.lg,
     fontFamily: font.bold,

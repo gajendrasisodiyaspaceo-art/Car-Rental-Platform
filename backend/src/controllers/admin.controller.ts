@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { User } from '../models/User';
+import { User, USER_LIST_FIELDS } from '../models/User';
 import { Booking } from '../models/Booking';
 import { Payment } from '../models/Payment';
 import { ApiError } from '../utils/ApiError';
@@ -22,13 +22,13 @@ export async function listUsers(req: Request, res: Response): Promise<void> {
   const filter: Record<string, unknown> = {};
   if (req.query.role) filter.role = req.query.role;
   if (req.query.status) filter.status = req.query.status;
-  const items = await User.find(filter).sort('-createdAt').limit(500);
+  const items = await User.find(filter).select(USER_LIST_FIELDS).sort('-createdAt').limit(500);
   res.json({ success: true, data: items });
 }
 
 /** Providers with their approval/status (admin). */
 export async function listProviders(_req: Request, res: Response): Promise<void> {
-  const items = await User.find({ role: 'provider' }).sort('-createdAt');
+  const items = await User.find({ role: 'provider' }).select(USER_LIST_FIELDS).sort('-createdAt');
   res.json({ success: true, data: items });
 }
 
@@ -37,7 +37,9 @@ export async function adminUpdateUser(req: Request, res: Response): Promise<void
   if (req.params.id === req.user!.id) {
     throw ApiError.badRequest('Admins cannot modify their own account here');
   }
-  const user = await User.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+  const user = await User.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true }).select(
+    USER_LIST_FIELDS,
+  );
   if (!user) throw ApiError.notFound('User not found');
   res.json({ success: true, data: user });
 }

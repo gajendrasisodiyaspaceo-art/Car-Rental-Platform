@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { useFavorites } from '../hooks/useFavorites';
@@ -30,6 +30,7 @@ const PLACEHOLDER_DESC =
 
 export default function VehicleDetailScreen({ route, navigation }: Props) {
   const { vehicle } = route.params;
+  const insets = useSafeAreaInsets();
   const [imgFailed, setImgFailed] = useState(!vehicle.images[0]);
   const [expanded, setExpanded] = useState(false);
   const { isFavorite, toggle } = useFavorites();
@@ -79,12 +80,12 @@ export default function VehicleDetailScreen({ route, navigation }: Props) {
         <Animated.View
           style={[
             styles.heroPanel,
-            { opacity: heroOpacity, transform: [{ scale: heroScale }] },
+            { height: HERO_PANEL_H + insets.top, opacity: heroOpacity, transform: [{ scale: heroScale }] },
           ]}
         >
           <Pressable
             onPress={() => navigation.goBack()}
-            style={styles.backBtn}
+            style={[styles.backBtn, { top: insets.top + spacing.xs }]}
             hitSlop={8}
           >
             <Icon name="back" size={20} color={colors.onAccent} />
@@ -92,7 +93,7 @@ export default function VehicleDetailScreen({ route, navigation }: Props) {
 
           <Pressable
             onPress={() => toggle(vehicle._id)}
-            style={styles.heartBtn}
+            style={[styles.heartBtn, { top: insets.top + spacing.xs }]}
             hitSlop={8}
           >
             <Icon
@@ -103,13 +104,13 @@ export default function VehicleDetailScreen({ route, navigation }: Props) {
           </Pressable>
 
           {imgFailed ? (
-            <View style={[styles.heroImage, styles.heroFallback]}>
+            <View style={[styles.heroImage, styles.heroFallback, { top: 52 + insets.top }]}>
               <CarSilhouette width={240} height={130} />
             </View>
           ) : (
             <Image
               source={{ uri: vehicle.images[0] }}
-              style={styles.heroImage}
+              style={[styles.heroImage, { top: 52 + insets.top }]}
               resizeMode="contain"
               onError={() => setImgFailed(true)}
             />

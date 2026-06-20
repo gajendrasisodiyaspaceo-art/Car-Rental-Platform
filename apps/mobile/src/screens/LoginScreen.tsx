@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../store';
 import { login } from '../store/authSlice';
 import type { RootStackParamList } from '../navigation/types';
@@ -21,6 +22,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('customer@demo.io');
   const [password, setPassword] = useState('password123');
   const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
   const { status, error } = useAppSelector((s) => s.auth);
 
   const onSubmit = () => {
@@ -32,7 +34,15 @@ export default function LoginScreen({ navigation }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.inner}>
+      <View
+        style={[
+          styles.inner,
+          {
+            paddingTop: insets.top + spacing.md,
+            paddingBottom: insets.bottom + spacing.md,
+          },
+        ]}
+      >
         <Text style={styles.title}>Welcome back</Text>
         <Text style={styles.subtitle}>Sign in to book your next ride</Text>
 

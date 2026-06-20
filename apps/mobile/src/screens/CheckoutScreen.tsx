@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../api/client';
 import type { RootStackParamList } from '../navigation/types';
 import type { Booking } from '../types';
@@ -25,6 +26,7 @@ function vehicleName(booking: Booking): string {
 
 export default function CheckoutScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
+  const insets = useSafeAreaInsets();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
@@ -83,7 +85,10 @@ export default function CheckoutScreen({ route, navigation }: Props) {
   const p = booking.pricing;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingBottom: spacing.xl + insets.bottom }]}
+    >
       <Text style={styles.heading}>Checkout</Text>
 
       <View style={styles.card}>
@@ -148,7 +153,7 @@ function Row({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl + 8 },
+  content: { padding: spacing.xl },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
   errorText: { color: colors.muted, fontFamily: font.regular, fontSize: font.size.md },
   heading: {

@@ -49,7 +49,7 @@ function HomeStackNav() {
     <HomeStack.Navigator screenOptions={stackScreenOptions}>
       <HomeStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="CarList" component={CarListScreen} options={{ title: 'Cars' }} />
-      <HomeStack.Screen name="VehicleDetail" component={VehicleDetailScreen} options={{ title: 'Vehicle' }} />
+      <HomeStack.Screen name="VehicleDetail" component={VehicleDetailScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="BookingConfig" component={BookingConfigScreen} options={{ title: 'Book vehicle' }} />
       <HomeStack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
       <HomeStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: 'Booking detail' }} />
@@ -70,7 +70,7 @@ function FavoritesStackNav() {
   return (
     <FavStack.Navigator screenOptions={stackScreenOptions}>
       <FavStack.Screen name="Favorites" component={FavoritesScreen} options={{ headerShown: false }} />
-      <FavStack.Screen name="VehicleDetail" component={VehicleDetailScreen} options={{ title: 'Vehicle' }} />
+      <FavStack.Screen name="VehicleDetail" component={VehicleDetailScreen} options={{ headerShown: false }} />
     </FavStack.Navigator>
   );
 }

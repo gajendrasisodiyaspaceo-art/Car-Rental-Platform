@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../api/client';
 import type { Notification } from '../types';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,7 @@ const TYPE_COLORS: Record<Notification['type'], { bg: string; fg: string }> = {
 };
 
 export default function NotificationsScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -92,7 +94,7 @@ export default function NotificationsScreen({ navigation }: Props) {
   return (
     <FlatList
       style={styles.list}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: spacing.xxxl + insets.bottom }]}
       data={notifications}
       keyExtractor={(item) => item._id}
       refreshControl={

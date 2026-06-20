@@ -10,6 +10,7 @@ import {
   updateVehicle,
   deleteVehicle,
   vehicleBodySchema,
+  vehicleUpdateSchema,
 } from '../controllers/vehicle.controller';
 import { listVehicleReviews } from '../controllers/review.controller';
 
@@ -29,7 +30,13 @@ router.post(
   validate(vehicleBodySchema),
   asyncHandler(createVehicle),
 );
-router.put('/:id', authenticate, authorize('provider', 'staff'), asyncHandler(updateVehicle));
+router.put(
+  '/:id',
+  authenticate,
+  authorize('provider', 'staff'),
+  validate(vehicleUpdateSchema),
+  asyncHandler(updateVehicle),
+);
 router.delete('/:id', authenticate, authorize('provider', 'staff'), asyncHandler(deleteVehicle));
 
 export default router;
