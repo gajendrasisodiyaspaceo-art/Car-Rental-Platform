@@ -1,17 +1,29 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, RefreshControl, Pressable, Alert } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../api/client';
-import type { Booking } from '../types';
+import type { Booking, Vehicle } from '../types';
+import type { RootStackParamList } from '../navigation/types';
+import { useTabBarClearance } from '../navigation/useTabBarClearance';
+import { colors, font, radius, spacing, shadow } from '../theme/tokens';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
 
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
-  confirmed: { bg: '#dcfce7', fg: '#166534' },
-  active: { bg: '#dbeafe', fg: '#1e40af' },
-  completed: { bg: '#e2e8f0', fg: '#475569' },
+  pending: { bg: 'rgba(244,196,48,0.18)', fg: colors.warning },
+  confirmed: { bg: 'rgba(123,224,138,0.18)', fg: colors.success },
+  preparing: { bg: 'rgba(127,183,255,0.18)', fg: colors.info },
+  ready: { bg: 'rgba(210,243,76,0.18)', fg: colors.accent },
+  active: { bg: 'rgba(127,183,255,0.18)', fg: colors.info },
+  completed: { bg: 'rgba(155,160,141,0.18)', fg: colors.muted },
+  cancelled: { bg: 'rgba(255,107,94,0.18)', fg: colors.danger },
 };
 
-export default function BookingsScreen() {
+export default function BookingsScreen({ navigation }: Props) {
+  const tabBarClearance = useTabBarClearance();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rebooking, setRebooking] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -23,6 +35,25 @@ export default function BookingsScreen() {
     }
   }, []);
 
+  const handleRebook = useCallback(async (booking: Booking) => {
+    const vehicleId =
+      typeof booking.vehicleId === 'object' ? booking.vehicleId?._id : booking.vehicleId;
+    if (!vehicleId) {
+      Alert.alert('Error', 'Vehicle information is unavailable.');
+      return;
+    }
+    setRebooking(booking._id);
+    try {
+      const { data } = await api.get(`/vehicles/${vehicleId}`);
+      const vehicle = data.data as Vehicle;
+      navigation.navigate('BookingConfig', { vehicle });
+    } catch {
+      Alert.alert('Error', 'Could not load vehicle details. Please try again.');
+    } finally {
+      setRebooking(null);
+    }
+  }, [navigation]);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -30,21 +61,32 @@ export default function BookingsScreen() {
   return (
     <FlatList
       style={styles.list}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarClearance }]}
       data={bookings}
       keyExtractor={(item) => item._id}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
+      refreshControl={
+        <RefreshControl
+          refreshing={loading}
+          onRefresh={load}
+          tintColor={colors.accent}
+          colors={[colors.accent]}
+        />
+      }
       ListEmptyComponent={
         !loading ? <Text style={styles.empty}>No bookings yet.</Text> : null
       }
       renderItem={({ item }) => {
-        const vehicleName =
+        const name =
           typeof item.vehicleId === 'object' ? item.vehicleId?.name : 'Vehicle';
         const color = STATUS_COLORS[item.status];
+        const isTerminal = item.status === 'completed' || item.status === 'cancelled';
         return (
-          <View style={styles.card}>
+          <Pressable
+            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+            onPress={() => navigation.navigate('BookingDetail', { bookingId: item._id })}
+          >
             <View style={styles.row}>
-              <Text style={styles.name}>{vehicleName}</Text>
+              <Text style={styles.name}>{name}</Text>
               <Text
                 style={[
                   styles.badge,
@@ -58,10 +100,24 @@ export default function BookingsScreen() {
               {new Date(item.startDate).toLocaleDateString()} –{' '}
               {new Date(item.endDate).toLocaleDateString()} · {item.plan}
             </Text>
-            <Text style={styles.total}>
-              {item.pricing.currency} {item.pricing.total}
-            </Text>
-          </View>
+            <View style={styles.cardFooter}>
+              <Text style={styles.total}>
+                {item.pricing.currency} {item.pricing.total}
+              </Text>
+              {isTerminal && (
+                <Pressable
+                  style={[styles.rebookBtn, rebooking === item._id && styles.rebookBtnDisabled]}
+                  onPress={() => handleRebook(item)}
+                  disabled={rebooking === item._id}
+                  hitSlop={8}
+                >
+                  <Text style={styles.rebookText}>
+                    {rebooking === item._id ? 'Loading…' : 'Rebook'}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </Pressable>
         );
       }}
     />
@@ -69,26 +125,76 @@ export default function BookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { flex: 1, backgroundColor: '#f1f5f9' },
-  content: { padding: 16 },
+  list: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
+  cardPressed: { opacity: 0.8 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  name: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  meta: { color: '#64748b', marginTop: 6, textTransform: 'capitalize' },
-  total: { marginTop: 8, fontWeight: '700', color: '#4f46e5' },
-  empty: { textAlign: 'center', color: '#94a3b8', marginTop: 64 },
+  name: {
+    fontSize: font.size.lg,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    color: colors.text,
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  meta: {
+    color: colors.muted,
+    fontFamily: font.regular,
+    fontSize: font.size.sm,
+    marginTop: spacing.sm,
+    textTransform: 'capitalize',
+  },
+  total: {
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.md,
+    color: colors.accent,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.md,
+  },
+  rebookBtn: {
+    backgroundColor: 'rgba(210,243,76,0.12)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xs + 2,
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
+  rebookBtnDisabled: { opacity: 0.45 },
+  rebookText: {
+    color: colors.accent,
+    fontFamily: font.bold,
+    fontWeight: '700',
+    fontSize: font.size.sm,
+  },
+  empty: {
+    textAlign: 'center',
+    color: colors.muted,
+    fontFamily: font.regular,
+    fontSize: font.size.md,
+    marginTop: spacing.xxxl * 2,
+  },
   badge: {
-    fontSize: 12,
-    color: '#475569',
-    backgroundColor: '#e2e8f0',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 999,
+    fontSize: font.size.xs,
+    fontFamily: font.medium,
+    color: colors.muted,
+    backgroundColor: colors.raised,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
     textTransform: 'capitalize',
     overflow: 'hidden',
   },

@@ -3,31 +3,38 @@ import { z } from 'zod';
 import { Vehicle } from '../models/Vehicle';
 import { ApiError } from '../utils/ApiError';
 import { providerScope } from '../utils/scope';
+import { hasBookingConflict } from '../utils/availability';
 import { FUEL_TYPES, TRANSMISSIONS, VEHICLE_STATUSES } from '../types';
 
-export const vehicleBodySchema = z.object({
-  body: z.object({
-    categoryId: z.string(),
-    branchId: z.string().optional(),
-    name: z.string().min(1),
-    make: z.string().optional(),
-    model: z.string().optional(),
-    year: z.number().int().optional(),
-    plateNumber: z.string().optional(),
-    seats: z.number().int().optional(),
-    transmission: z.enum(TRANSMISSIONS).optional(),
-    fuelType: z.enum(FUEL_TYPES).optional(),
-    images: z.array(z.string()).optional(),
-    features: z.array(z.string()).optional(),
-    pricing: z.object({
-      daily: z.number().positive(),
-      weekly: z.number().positive().optional(),
-      monthly: z.number().positive().optional(),
-    }),
-    currency: z.string().optional(),
-    status: z.enum(VEHICLE_STATUSES).optional(),
-    rentalTerms: z.string().optional(),
+const vehicleFields = z.object({
+  categoryId: z.string(),
+  branchId: z.string().optional(),
+  name: z.string().min(1),
+  make: z.string().optional(),
+  model: z.string().optional(),
+  year: z.number().int().optional(),
+  plateNumber: z.string().optional(),
+  seats: z.number().int().optional(),
+  transmission: z.enum(TRANSMISSIONS).optional(),
+  fuelType: z.enum(FUEL_TYPES).optional(),
+  images: z.array(z.string()).optional(),
+  features: z.array(z.string()).optional(),
+  pricing: z.object({
+    daily: z.number().positive(),
+    weekly: z.number().positive().optional(),
+    monthly: z.number().positive().optional(),
   }),
+  currency: z.string().optional(),
+  status: z.enum(VEHICLE_STATUSES).optional(),
+  rentalTerms: z.string().optional(),
+});
+
+export const vehicleBodySchema = z.object({
+  body: vehicleFields.strict(),
+});
+
+export const vehicleUpdateSchema = z.object({
+  body: vehicleFields.partial().strict(),
 });
 
 /** Public browse + search with filters. */
@@ -67,6 +74,22 @@ export async function getVehicle(req: Request, res: Response): Promise<void> {
   const vehicle = await Vehicle.findById(req.params.id).populate('categoryId', 'name');
   if (!vehicle) throw ApiError.notFound('Vehicle not found');
   res.json({ success: true, data: vehicle });
+}
+
+/** Public availability check for a date range. */
+export async function checkAvailability(req: Request, res: Response): Promise<void> {
+  const from = new Date(String(req.query.from));
+  const to = new Date(String(req.query.to));
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || to <= from) {
+    throw ApiError.badRequest('Provide valid from/to query dates (to must be after from)');
+  }
+
+  const vehicle = await Vehicle.findById(req.params.id).select('status');
+  if (!vehicle) throw ApiError.notFound('Vehicle not found');
+
+  const available =
+    vehicle.status === 'available' && !(await hasBookingConflict(req.params.id, from, to));
+  res.json({ success: true, data: { available } });
 }
 
 export async function createVehicle(req: Request, res: Response): Promise<void> {

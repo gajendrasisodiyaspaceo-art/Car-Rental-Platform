@@ -8,6 +8,7 @@ import {
   updateCategory,
   deleteCategory,
   categoryBodySchema,
+  categoryUpdateSchema,
 } from '../controllers/category.controller';
 
 const router = Router();
@@ -20,7 +21,13 @@ router.post(
   validate(categoryBodySchema),
   asyncHandler(createCategory),
 );
-router.put('/:id', authenticate, authorize('provider', 'staff'), asyncHandler(updateCategory));
+router.put(
+  '/:id',
+  authenticate,
+  authorize('provider', 'staff'),
+  validate(categoryUpdateSchema),
+  asyncHandler(updateCategory),
+);
 router.delete('/:id', authenticate, authorize('provider', 'staff'), asyncHandler(deleteCategory));
 
 export default router;

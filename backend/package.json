@@ -10,6 +10,7 @@
     "start": "node dist/server.js",
     "seed": "ts-node-dev --transpile-only src/seed.ts",
     "typecheck": "tsc --noEmit",
+    "test": "ts-node --transpile-only src/__tests__/security-fixes.test.ts",
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {

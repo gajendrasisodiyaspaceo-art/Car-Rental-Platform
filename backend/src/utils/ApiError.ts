@@ -24,4 +24,8 @@ export class ApiError extends Error {
   static notFound(message = 'Not found') {
     return new ApiError(404, message);
   }
+
+  static tooManyRequests(message = 'Too many requests') {
+    return new ApiError(429, message);
+  }
 }

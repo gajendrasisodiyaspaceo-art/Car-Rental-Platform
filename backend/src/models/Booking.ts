@@ -14,13 +14,16 @@ export interface IBooking extends Document {
   pricing: {
     base: number;
     extras: number;
+    discount: number;
     tax: number;
+    lateFee: number;
     total: number;
     currency: string;
   };
   extras: string[];
   discountCode?: string;
   notes?: string;
+  returnedAt?: Date;
 }
 
 const bookingSchema = new Schema<IBooking>(
@@ -37,13 +40,16 @@ const bookingSchema = new Schema<IBooking>(
     pricing: {
       base: { type: Number, required: true },
       extras: { type: Number, default: 0 },
+      discount: { type: Number, default: 0 },
       tax: { type: Number, default: 0 },
+      lateFee: { type: Number, default: 0 },
       total: { type: Number, required: true },
       currency: { type: String, default: 'USD' },
     },
     extras: { type: [String], default: [] },
     discountCode: String,
     notes: String,
+    returnedAt: Date,
   },
   { timestamps: true },
 );

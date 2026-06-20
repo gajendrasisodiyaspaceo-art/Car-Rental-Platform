@@ -34,6 +34,7 @@ export interface IVehicle {
   currency: string;
   status: VehicleStatus;
   rentalTerms?: string;
+  rating: { average: number; count: number };
 }
 
 const vehicleSchema = new Schema<IVehicle>(
@@ -59,6 +60,10 @@ const vehicleSchema = new Schema<IVehicle>(
     currency: { type: String, default: 'USD' },
     status: { type: String, enum: VEHICLE_STATUSES, default: 'available', index: true },
     rentalTerms: String,
+    rating: {
+      average: { type: Number, default: 0 },
+      count: { type: Number, default: 0 },
+    },
   },
   { timestamps: true },
 );

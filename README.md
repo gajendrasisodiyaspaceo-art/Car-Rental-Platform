@@ -36,3 +36,5 @@ brew services start mongodb-community   # or: mongod --config /opt/homebrew/etc/
 ```
 
 Default connection string is `mongodb://127.0.0.1:27017/car_rental` (override via `backend/.env`).
+
+`Logins (password123): admin@demo.io, provider@demo.io, customer@demo.io  for mobile customer@demo.io / password123`
