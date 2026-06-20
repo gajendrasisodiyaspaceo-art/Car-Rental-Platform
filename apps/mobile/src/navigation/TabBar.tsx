@@ -147,12 +147,13 @@ const styles = StyleSheet.create({
     ...shadow.raised,
   },
   item: {
-    width: 54,
-    height: 50,
+    width: 48,
+    height: 48,
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    marginHorizontal: spacing.xs,
   },
   pill: {
     borderRadius: radius.pill,

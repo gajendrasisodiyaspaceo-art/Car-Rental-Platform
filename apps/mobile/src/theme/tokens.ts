@@ -79,10 +79,10 @@ export const shadow = {
   },
   accent: {
     shadowColor: '#D2F34C',
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
 } as const;
 

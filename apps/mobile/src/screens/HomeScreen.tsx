@@ -226,7 +226,11 @@ export default function HomeScreen({ navigation }: Props) {
 
           {/* Avatar */}
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{userInitial}</Text>
+            {user?.name ? (
+              <Text style={styles.avatarText}>{userInitial}</Text>
+            ) : (
+              <Icon name="profile" size={20} color={colors.onAccent} />
+            )}
           </View>
         </View>
       </Entrance>
@@ -393,8 +397,6 @@ export default function HomeScreen({ navigation }: Props) {
           <PrimaryButton
             label="Search Car"
             onPress={handleSearchCar}
-            leadingIcon="search"
-            chevrons
             style={styles.searchCarBtn}
           />
         </Entrance>

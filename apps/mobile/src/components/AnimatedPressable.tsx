@@ -13,51 +13,45 @@ interface AnimatedPressableProps extends Omit<PressableProps, 'style'> {
   children?: React.ReactNode;
 }
 
-// Drop-in Pressable replacement that springs a scale 1 -> activeScale on pressIn.
+// Single animated Pressable node: the passed `style` (layout: flexDirection,
+// align, dimensions, overflow) AND the press scale live on the SAME element, so
+// children inherit the intended layout (no wrapper that breaks rows/sizing).
+const AnimatedPressableBase = Animated.createAnimatedComponent(Pressable);
+
 export default function AnimatedPressable({
-  onPress,
+  onPressIn,
+  onPressOut,
   style,
   children,
-  disabled,
-  hitSlop,
-  accessibilityRole,
   activeScale = 0.97,
   ...rest
 }: AnimatedPressableProps) {
   const scale = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = () => {
-    Animated.spring(scale, {
-      toValue: activeScale,
-      friction: 9,
-      tension: 50,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      friction: 8,
-      tension: 50,
-      useNativeDriver: true,
-    }).start();
-  };
-
   return (
-    <Animated.View style={[{ transform: [{ scale }] }, style]}>
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        disabled={disabled}
-        hitSlop={hitSlop}
-        accessibilityRole={accessibilityRole}
-        style={{ flexGrow: 1 }}
-        {...rest}
-      >
-        {children}
-      </Pressable>
-    </Animated.View>
+    <AnimatedPressableBase
+      onPressIn={(e) => {
+        Animated.spring(scale, {
+          toValue: activeScale,
+          friction: 9,
+          tension: 50,
+          useNativeDriver: true,
+        }).start();
+        onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        Animated.spring(scale, {
+          toValue: 1,
+          friction: 8,
+          tension: 50,
+          useNativeDriver: true,
+        }).start();
+        onPressOut?.(e);
+      }}
+      style={[style, { transform: [{ scale }] }]}
+      {...rest}
+    >
+      {children}
+    </AnimatedPressableBase>
   );
 }
